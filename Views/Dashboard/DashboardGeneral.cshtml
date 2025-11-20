@@ -1,0 +1,94 @@
+﻿@model Campus_Virtul_GRLL.Models.Usuario
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/Img/Cursos.png">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/Dashboard.css" asp-append-version="true" />
+    <title>Dashboard General</title>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2 class="logo">Campu_Virtual_GRLL</h2>
+        </div>
+
+        <div class="user-profile">
+            <div class="user-avatar">
+                <img src="/Img/default-avatar.png" alt="Avatar" onerror="this.src='https://via.placeholder.com/50'">
+            </div>
+            <div class="user-info">
+                <h3>@(User.Identity?.Name ?? "")</h3>
+                <p>@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Administrador")</p>
+            </div>
+        </div>
+        <nav class="sidebar-menu">
+            <ul>
+                <li class="active">
+                    <a href="@Url.Action("Index", "Dashboard")">
+                        <span class="icon">🎨</span>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="@Url.Action("Index", "Dashboard")">
+                        <span class="icon">🎨</span>
+                        <span>Solicitudes</span>
+                    </a>
+                </li>
+                <li class="has-submenu">
+                    <a href="#" class="submenu-toggle">
+                        <span class="icon">📋</span>
+                        <span>Solicitud Aceptadas</span>
+                        <span class="arrow">›</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="@Url.Action("Index", "Dashboard")">
+                        <span class="icon">🎨</span>
+                        <span>Curso</span>
+                    </a>
+                </li>
+                <li class="has-submenu">
+                    <a href="#" class="submenu-toggle">
+                        <span class="icon">📋</span>
+                        <span>Materiales</span>
+                        <span class="arrow">›</span>
+                    </a>
+                </li>
+                <li class="has-submenu">
+                    <a href="#" class="submenu-toggle">
+                        <span class="icon">📋</span>
+                        <span>Profesor</span>
+                        <span class="arrow">›</span>
+                    </a>
+                </li>
+                <li class="has-submenu">
+                    <a href="#" class="submenu-toggle">
+                        <span class="icon">📋</span>
+                        <span>Evaluaciones</span>
+                        <span class="arrow">›</span>
+                    </a>
+                </li>
+                </li>
+                    <a href="#">
+                        <span class="icon">📁</span>
+                        <span>Salir</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    
+    </div>
+</body>
+</html>
