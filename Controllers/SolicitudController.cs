@@ -1,10 +1,12 @@
 ﻿using Campus_Virtul_GRLL.Data;
 using Campus_Virtul_GRLL.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Campus_Virtul_GRLL.Controllers
 {
+    [AllowAnonymous]
     public class SolicitudController : Controller
     {
         private readonly AppDBContext _appContext;
@@ -102,7 +104,7 @@ namespace Campus_Virtul_GRLL.Controllers
                     CorreoElectronico = modelo.CorreoElectronico.Trim(),
                     Area = modelo.Area.Trim(),
                     FechaSolicitud = DateOnly.FromDateTime(DateTime.Now),
-                    Estado = EstadoSolicitud.Enviada
+                    Estado = EstadoSolicitud.Pendiente
                 };
 
                 await _appContext.Solicituds.AddAsync(solicitud);

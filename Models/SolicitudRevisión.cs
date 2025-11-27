@@ -10,18 +10,10 @@
 
         public required string observaciones { get; set; }
 
-        public EstadoSolicitud Estado { get; set; } = EstadoSolicitud.Enviada;
+        public EstadoSolicitud Estado { get; set; } = EstadoSolicitud.EnRevision;
 
         public Solicitud Solicitud { get; set; } = null!;
 
         public Usuario usuario { get; set; } = null!;
-    }
-
-    public enum EstadoSolicitudRevision
-    {
-        Enviada,
-        EnRevision,
-        Aprobada,
-        Rechazada
     }
 }

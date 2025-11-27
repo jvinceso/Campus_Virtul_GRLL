@@ -1,0 +1,104 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.RechazarSolicitudViewModel
+
+@{
+    ViewData["Title"] = "Rechazar Solicitud";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="bi bi-x-circle text-danger"></i> Rechazar Solicitud
+                </h2>
+                <a asp-action="Detalle" asp-route-id="@Model.IdSolicitud" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Cancelar
+                </a>
+            </div>
+
+            <!-- Card con información del solicitante -->
+            <div class="card shadow mb-4">
+                <div class="card-body bg-light">
+                    <h5 class="card-title">Información del Solicitante</h5>
+                    <p class="mb-1">
+                        <strong>Nombre:</strong> @Model.NombreCompleto
+                    </p>
+                    <p class="mb-1">
+                        <strong>DNI:</strong> @Model.DNI
+                    </p>
+                    <p class="mb-0">
+                        <strong>Email:</strong> @Model.Email
+                    </p>
+                </div>
+            </div>
+
+            <!-- Advertencia -->
+            <div class="alert alert-danger" role="alert">
+                <i class="bi bi-exclamation-triangle"></i>
+                <strong>Atención:</strong> Esta acción rechazará permanentemente la solicitud. Puede proporcionar un motivo opcional.
+            </div>
+
+            <!-- Mensajes de validación -->
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <!-- Formulario -->
+            <div class="card shadow">
+                <div class="card-body">
+                    <form asp-action="Rechazar" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="IdSolicitud" />
+                        <input type="hidden" asp-for="NombreCompleto" />
+                        <input type="hidden" asp-for="DNI" />
+                        <input type="hidden" asp-for="Email" />
+
+                        <!-- Motivo del Rechazo -->
+                        <div class="mb-4">
+                            <label asp-for="MotivoRechazo" class="form-label">
+                                Motivo del Rechazo <span class="text-muted">(Opcional)</span>
+                            </label>
+                            <textarea asp-for="MotivoRechazo"
+                                      class="form-control"
+                                      rows="5"
+                                      placeholder="Ej: No cumple con los requisitos mínimos, Datos incompletos, etc."></textarea>
+                            <span asp-validation-for="MotivoRechazo" class="text-danger small"></span>
+                            <small class="form-text text-muted">
+                                Máximo 500 caracteres. Este motivo podrá ser revisado posteriormente.
+                            </small>
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Detalle" asp-route-id="@Model.IdSolicitud" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger" id="btnRechazar">
+                                <i class="bi bi-x-circle"></i> Rechazar Solicitud
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function() {
+            // Confirmación antes de enviar
+            $('form').on('submit', function(e) {
+                const nombreCompleto = '@Model.NombreCompleto';
+
+                if (!confirm(`¿Está seguro de rechazar la solicitud de ${nombreCompleto}?\n\nEsta acción no se puede deshacer.`)) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+    </script>
+}

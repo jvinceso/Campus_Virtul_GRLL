@@ -1,0 +1,284 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.DetalleSolicitudViewModel
+
+@{
+    ViewData["Title"] = "Detalle de Solicitud";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="bi bi-file-earmark-text"></i> Detalle de Solicitud
+                </h2>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver al listado
+                </a>
+            </div>
+
+            <!-- Alerta de validación -->
+            @if (!string.IsNullOrEmpty(Model.MensajeValidacion))
+            {
+                <div class="alert alert-warning" role="alert">
+                    @Model.MensajeValidacion
+                </div>
+            }
+
+            <div class="row">
+                <!-- Columna izquierda: Información de la solicitud -->
+                <div class="col-lg-8">
+                    <!-- Card: Datos del Solicitante -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-person"></i> Datos del Solicitante
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Nombres:</strong>
+                                    <p class="mb-0">@Model.Nombres</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Apellidos:</strong>
+                                    <p class="mb-0">@Model.Apellidos</p>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <strong class="text-muted">DNI:</strong>
+                                    <p class="mb-0">
+                                        <span class="badge bg-secondary">@Model.DNI</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Teléfono:</strong>
+                                    <p class="mb-0">
+                                        <i class="bi bi-telephone"></i> @Model.Telefono
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <strong class="text-muted">Email:</strong>
+                                    <p class="mb-0">
+                                        <i class="bi bi-envelope"></i>
+                                        <a href="mailto:@Model.Email">@Model.Email</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card: Información Laboral -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-briefcase"></i> Información Laboral
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Área:</strong>
+                                    <p class="mb-0">@Model.Area</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Rol Solicitado:</strong>
+                                    <p class="mb-0">
+                                        @if (Model.RolSolicitado == "Colaborador")
+                                        {
+                                            <span class="badge bg-warning fs-6">
+                                                <i class="bi bi-person-check"></i> @Model.RolSolicitado
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary fs-6">
+                                                <i class="bi bi-person"></i> @Model.RolSolicitado
+                                            </span>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card: Estado de la Solicitud -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-info-circle"></i> Estado de la Solicitud
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Fecha de Solicitud:</strong>
+                                    <p class="mb-0">
+                                        <i class="bi bi-calendar-plus"></i>
+                                        @Model.FechaSolicitud.ToString("dd/MM/yyyy")
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Estado:</strong>
+                                    <p class="mb-0">
+                                        @switch (Model.Estado)
+                                        {
+                                            case EstadoSolicitud.Pendiente:
+                                                <span class="badge bg-warning fs-6">
+                                                    <i class="bi bi-hourglass-split"></i> Pendiente
+                                                </span>
+                                                break;
+                                            case EstadoSolicitud.Aprobada:
+                                                <span class="badge bg-success fs-6">
+                                                    <i class="bi bi-check-circle"></i> Aprobada
+                                                </span>
+                                                break;
+                                            case EstadoSolicitud.Rechazada:
+                                                <span class="badge bg-danger fs-6">
+                                                    <i class="bi bi-x-circle"></i> Rechazada
+                                                </span>
+                                                break;
+                                            case EstadoSolicitud.EnRevision:
+                                                <span class="badge bg-info fs-6">
+                                                    <i class="bi bi-eye"></i> En Revisión
+                                                </span>
+                                                break;
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+
+                            @if (Model.FechaRespuesta.HasValue)
+                            {
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <strong class="text-muted">Fecha de Respuesta:</strong>
+                                        <p class="mb-0">
+                                            <i class="bi bi-calendar-check"></i>
+                                            @Model.FechaRespuesta.Value.ToString("dd/MM/yyyy HH:mm")
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong class="text-muted">Respondido por:</strong>
+                                        <p class="mb-0">
+                                            <i class="bi bi-person-badge"></i>
+                                            @Model.NombreAprobador
+                                        </p>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(Model.MotivoRechazo))
+                            {
+                                <div class="row">
+                                    <div class="col-12">
+                                        <strong class="text-muted">Motivo de Rechazo:</strong>
+                                        <div class="alert alert-danger mt-2">
+                                            @Model.MotivoRechazo
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (Model.IdUsuarioCreado.HasValue)
+                            {
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="alert alert-success">
+                                            <i class="bi bi-check-circle"></i>
+                                            <strong>Usuario creado exitosamente</strong><br/>
+                                            ID de Usuario: @Model.IdUsuarioCreado
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna derecha: Acciones -->
+                <div class="col-lg-4">
+                    <!-- Card: Acciones Rápidas -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-lightning"></i> Acciones
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.Estado == EstadoSolicitud.Pendiente)
+                            {
+                                <div class="d-grid gap-2">
+                                    @if (Model.PuedeAprobar)
+                                    {
+                                        <form asp-action="Aprobar" asp-route-id="@Model.IdSolicitud" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-success w-100" onclick="return confirm('¿Está seguro de aprobar esta solicitud? Se creará un usuario automáticamente.')">
+                                                <i class="bi bi-check-circle"></i> Aprobar Solicitud
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-success w-100" disabled>
+                                            <i class="bi bi-x-circle"></i> No se puede Aprobar
+                                        </button>
+                                        <small class="text-muted">Ya existe un usuario con este DNI/Email</small>
+                                    }
+
+                                    @if (Model.PuedeRechazar)
+                                    {
+                                        <a asp-action="Rechazar" asp-route-id="@Model.IdSolicitud" class="btn btn-danger w-100">
+                                            <i class="bi bi-x-circle"></i> Rechazar Solicitud
+                                        </a>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info mb-0">
+                                    <i class="bi bi-info-circle"></i>
+                                    Esta solicitud ya fue procesada y no se puede modificar.
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Card: Avatar -->
+                    <div class="card shadow mb-4">
+                        <div class="card-body text-center">
+                            <div class="avatar-large bg-primary text-white mx-auto mb-3">
+                                @Model.Nombres.Substring(0, 1)@Model.Apellidos.Substring(0, 1)
+                            </div>
+                            <h4 class="mb-1">@Model.NombreCompleto</h4>
+                            <p class="text-muted mb-0">Solicitante</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .avatar-large {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 48px;
+        }
+
+        .card {
+            transition: transform 0.2s;
+        }
+    </style>
+}

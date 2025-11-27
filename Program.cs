@@ -30,14 +30,48 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 // ============================================
-// 3. AGREGAR CONTROLADORES Y VISTAS
+// 3. CONFIGURAR POL�TICAS DE AUTORIZACI�N
+// ============================================
+builder.Services.AddAuthorization(options =>
+{
+    // Pol�tica para Administradores
+    options.AddPolicy("EsAdministrador", policy =>
+        policy.RequireRole("Administrador"));
+
+    // Pol�tica para Profesores
+    options.AddPolicy("EsProfesor", policy =>
+        policy.RequireRole("Profesor"));
+
+    // Pol�tica para Colaboradores
+    options.AddPolicy("EsColaborador", policy =>
+        policy.RequireRole("Colaborador"));
+
+    // Pol�tica para Practicantes
+    options.AddPolicy("EsPracticante", policy =>
+        policy.RequireRole("Practicante"));
+
+    // Pol�tica para Admin o Profesor (gesti�n de cursos)
+    options.AddPolicy("EsAdminOProfesor", policy =>
+        policy.RequireRole("Administrador", "Profesor"));
+
+    // Pol�tica para Colaborador o Practicante (estudiantes)
+    options.AddPolicy("EsEstudiante", policy =>
+        policy.RequireRole("Colaborador", "Practicante"));
+
+    // Pol�tica para usuarios activos
+    options.AddPolicy("UsuarioActivo", policy =>
+        policy.RequireClaim("Estado", "True"));
+});
+
+// ============================================
+// 4. AGREGAR CONTROLADORES Y VISTAS
 // ============================================
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
 // ============================================
-// 4. INICIALIZAR BASE DE DATOS CON DATOS SEED
+// 5. INICIALIZAR BASE DE DATOS CON DATOS SEED
 // ============================================
 using (var scope = app.Services.CreateScope())
 {
@@ -55,7 +89,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 // ============================================
-// 5. CONFIGURAR PIPELINE HTTP
+// 6. CONFIGURAR PIPELINE HTTP
 // ============================================
 if (!app.Environment.IsDevelopment())
 {
@@ -72,7 +106,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // ============================================
-// 6. CONFIGURAR RUTAS
+// 7. CONFIGURAR RUTAS
 // ============================================
 app.MapControllerRoute(
     name: "default",

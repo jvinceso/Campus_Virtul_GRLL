@@ -1,0 +1,371 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.SolicitudesIndexViewModel
+
+@{
+    ViewData["Title"] = "Gestión de Solicitudes";
+}
+
+<div class="container-fluid py-4">
+    <!-- Encabezado -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-3">
+                <i class="bi bi-file-earmark-text"></i> Gestión de Solicitudes de Cuenta
+            </h2>
+        </div>
+    </div>
+
+    <!-- Tarjetas de estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <i class="bi bi-inbox fs-1 text-info"></i>
+                    <h3 class="mt-2 mb-0">@Model.TotalSolicitudes</h3>
+                    <p class="text-muted mb-0">Total Solicitudes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <i class="bi bi-hourglass-split fs-1 text-warning"></i>
+                    <h3 class="mt-2 mb-0">@Model.SolicitudesPendientes</h3>
+                    <p class="text-muted mb-0">Pendientes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle fs-1 text-success"></i>
+                    <h3 class="mt-2 mb-0">@Model.SolicitudesAprobadas</h3>
+                    <p class="text-muted mb-0">Aprobadas</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-danger">
+                <div class="card-body text-center">
+                    <i class="bi bi-x-circle fs-1 text-danger"></i>
+                    <h3 class="mt-2 mb-0">@Model.SolicitudesRechazadas</h3>
+                    <p class="text-muted mb-0">Rechazadas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form asp-action="Index" method="get" id="filtrosForm">
+                <div class="row g-3">
+                    <!-- Búsqueda -->
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text"
+                                   class="form-control"
+                                   name="busqueda"
+                                   placeholder="Buscar por nombre, DNI o email..."
+                                   value="@Model.BusquedaTexto">
+                        </div>
+                    </div>
+
+                    <!-- Filtro por Estado -->
+                    <div class="col-md-3">
+                        <select class="form-select" name="filtroEstado">
+                            <option value="">Todos los estados</option>
+                            <option value="@EstadoSolicitud.Pendiente" selected="@(Model.FiltroEstado == EstadoSolicitud.Pendiente)">
+                                Pendientes
+                            </option>
+                            <option value="@EstadoSolicitud.Aprobada" selected="@(Model.FiltroEstado == EstadoSolicitud.Aprobada)">
+                                Aprobadas
+                            </option>
+                            <option value="@EstadoSolicitud.Rechazada" selected="@(Model.FiltroEstado == EstadoSolicitud.Rechazada)">
+                                Rechazadas
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro por Rol -->
+                    <div class="col-md-3">
+                        <select class="form-select" name="filtroRol">
+                            <option value="">Todos los roles</option>
+                            @foreach (var rol in Model.RolesDisponibles)
+                            {
+                                <option value="@rol.IdRol" selected="@(Model.FiltroRol == rol.IdRol)">
+                                    @rol.NombreRol
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-funnel"></i> Filtrar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de solicitudes -->
+    <div class="card">
+        <div class="card-body">
+            @if (Model.Solicitudes.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Solicitante</th>
+                                <th>DNI</th>
+                                <th>Email</th>
+                                <th>Área</th>
+                                <th>Rol Solicitado</th>
+                                <th>Fecha Solicitud</th>
+                                <th>Estado</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var solicitud in Model.Solicitudes)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@solicitud.NombreCompleto</strong>
+                                    </td>
+                                    <td>@solicitud.DNI</td>
+                                    <td>
+                                        <small>@solicitud.Email</small>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">@solicitud.Area</small>
+                                    </td>
+                                    <td>
+                                        @if (solicitud.RolSolicitado == "Colaborador")
+                                        {
+                                            <span class="badge bg-warning">
+                                                <i class="bi bi-person-check"></i> @solicitud.RolSolicitado
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                <i class="bi bi-person"></i> @solicitud.RolSolicitado
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <small>@solicitud.FechaSolicitud.ToString("dd/MM/yyyy")</small>
+                                    </td>
+                                    <td>
+                                        @switch (solicitud.Estado)
+                                        {
+                                            case EstadoSolicitud.Pendiente:
+                                                <span class="badge bg-warning">
+                                                    <i class="bi bi-hourglass-split"></i> Pendiente
+                                                </span>
+                                                break;
+                                            case EstadoSolicitud.Aprobada:
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-circle"></i> Aprobada
+                                                </span>
+                                                break;
+                                            case EstadoSolicitud.Rechazada:
+                                                <span class="badge bg-danger">
+                                                    <i class="bi bi-x-circle"></i> Rechazada
+                                                </span>
+                                                break;
+                                            case EstadoSolicitud.EnRevision:
+                                                <span class="badge bg-info">
+                                                    <i class="bi bi-eye"></i> En Revisión
+                                                </span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <!-- Ver detalle -->
+                                            <a asp-action="Detalle"
+                                               asp-route-id="@solicitud.IdSolicitud"
+                                               class="btn btn-sm btn-outline-info"
+                                               title="Ver detalle">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+
+                                            @if (solicitud.Estado == EstadoSolicitud.Pendiente)
+                                            {
+                                                <!-- Aprobar -->
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-success btn-aprobar"
+                                                        data-id="@solicitud.IdSolicitud"
+                                                        data-nombre="@solicitud.NombreCompleto"
+                                                        title="Aprobar">
+                                                    <i class="bi bi-check-lg"></i>
+                                                </button>
+
+                                                <!-- Rechazar -->
+                                                <a asp-action="Rechazar"
+                                                   asp-route-id="@solicitud.IdSolicitud"
+                                                   class="btn btn-sm btn-outline-danger"
+                                                   title="Rechazar">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginación -->
+                @if (Model.TotalPaginas > 1)
+                {
+                    <nav aria-label="Paginación de solicitudes" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <!-- Primera página -->
+                            <li class="page-item @(Model.PaginaActual == 1 ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-busqueda="@Model.BusquedaTexto"
+                                   asp-route-filtroEstado="@Model.FiltroEstado"
+                                   asp-route-filtroRol="@Model.FiltroRol"
+                                   asp-route-pagina="1">
+                                    <i class="bi bi-chevron-double-left"></i>
+                                </a>
+                            </li>
+
+                            <!-- Anterior -->
+                            <li class="page-item @(Model.PaginaActual == 1 ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-busqueda="@Model.BusquedaTexto"
+                                   asp-route-filtroEstado="@Model.FiltroEstado"
+                                   asp-route-filtroRol="@Model.FiltroRol"
+                                   asp-route-pagina="@(Model.PaginaActual - 1)">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+
+                            <!-- Páginas -->
+                            @{
+                                int inicio = Math.Max(1, Model.PaginaActual - 2);
+                                int fin = Math.Min(Model.TotalPaginas, Model.PaginaActual + 2);
+
+                                for (int i = inicio; i <= fin; i++)
+                                {
+                                    <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
+                                        <a class="page-link"
+                                           asp-action="Index"
+                                           asp-route-busqueda="@Model.BusquedaTexto"
+                                           asp-route-filtroEstado="@Model.FiltroEstado"
+                                           asp-route-filtroRol="@Model.FiltroRol"
+                                           asp-route-pagina="@i">
+                                            @i
+                                        </a>
+                                    </li>
+                                }
+                            }
+
+                            <!-- Siguiente -->
+                            <li class="page-item @(Model.PaginaActual == Model.TotalPaginas ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-busqueda="@Model.BusquedaTexto"
+                                   asp-route-filtroEstado="@Model.FiltroEstado"
+                                   asp-route-filtroRol="@Model.FiltroRol"
+                                   asp-route-pagina="@(Model.PaginaActual + 1)">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+
+                            <!-- Última página -->
+                            <li class="page-item @(Model.PaginaActual == Model.TotalPaginas ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-busqueda="@Model.BusquedaTexto"
+                                   asp-route-filtroEstado="@Model.FiltroEstado"
+                                   asp-route-filtroRol="@Model.FiltroRol"
+                                   asp-route-pagina="@Model.TotalPaginas">
+                                    <i class="bi bi-chevron-double-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="text-center text-muted">
+                            Mostrando página @Model.PaginaActual de @Model.TotalPaginas
+                            (@Model.TotalSolicitudes solicitudes en total)
+                        </p>
+                    </nav>
+                }
+            }
+            else
+            {
+                <div class="alert alert-info text-center" role="alert">
+                    <i class="bi bi-info-circle fs-2"></i>
+                    <p class="mb-0 mt-2">No se encontraron solicitudes con los filtros aplicados.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para aprobar -->
+<div class="modal fade" id="modalAprobar" tabindex="-1" aria-labelledby="modalAprobarLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modalAprobarLabel">
+                    <i class="bi bi-check-circle"></i> Confirmar Aprobación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de que desea aprobar la solicitud de?</p>
+                <p><strong id="nombreSolicitanteAprobar"></strong></p>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>Importante:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>Se creará automáticamente un usuario en el sistema</li>
+                        <li>Se generará una contraseña temporal</li>
+                        <li>El usuario podrá iniciar sesión inmediatamente</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x"></i> Cancelar
+                </button>
+                <form method="post" id="formAprobar" style="display:inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Aprobar Solicitud
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // ============================================
+            // Aprobar Solicitud (mostrar modal)
+            // ============================================
+            $('.btn-aprobar').on('click', function() {
+                const idSolicitud = $(this).data('id');
+                const nombreSolicitante = $(this).data('nombre');
+
+                $('#nombreSolicitanteAprobar').text(nombreSolicitante);
+                $('#formAprobar').attr('action', '/AdminSolicitudes/Aprobar/' + idSolicitud);
+                $('#modalAprobar').modal('show');
+            });
+        });
+    </script>
+}

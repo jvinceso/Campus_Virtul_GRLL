@@ -133,7 +133,33 @@ namespace Campus_Virtul_GRLL.Data
                 .HasForeignKey(columna => columna.IdRol)
                 .OnDelete(DeleteBehavior.Restrict);
 
+                // Configuración de campos de respuesta
+                tabla.Property(columna => columna.FechaRespuesta)
+                .IsRequired(false);
+
+                tabla.Property(columna => columna.RespuestaDe)
+                .IsRequired(false);
+
+                tabla.Property(columna => columna.MotivoRechazo)
+                .HasMaxLength(500)
+                .IsRequired(false);
+
+                tabla.Property(columna => columna.UsuarioCreado)
+                .IsRequired(false);
+
+                // Relaciones con Usuario
+                tabla.HasOne(columna => columna.UsuarioRespondio)
+                .WithMany()
+                .HasForeignKey(columna => columna.RespuestaDe)
+                .OnDelete(DeleteBehavior.Restrict);
+
+                tabla.HasOne(columna => columna.UsuarioGenerado)
+                .WithMany()
+                .HasForeignKey(columna => columna.UsuarioCreado)
+                .OnDelete(DeleteBehavior.Restrict);
+
                 tabla.Ignore(columna => columna.NombreRol);
+                tabla.Ignore(columna => columna.NombreCompleto);
             });
 
             modelBuilder.Entity<SolicitudRevisión>(tabla =>
