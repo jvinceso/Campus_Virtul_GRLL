@@ -1,0 +1,397 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.DetalleCursoViewModel
+
+@{
+    ViewData["Title"] = $"Curso: {Model.Titulo}";
+
+    var estadoClass = Model.Estado switch
+    {
+        Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Borrador => "bg-secondary",
+        Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Publicado => "bg-primary",
+        Campus_Virtul_GRLL.Models.Enums.EstadoCurso.EnCurso => "bg-success",
+        Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Finalizado => "bg-warning",
+        Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Cancelado => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    var nivelClass = Model.Nivel switch
+    {
+        Campus_Virtul_GRLL.Models.Enums.NivelCurso.Basico => "bg-info",
+        Campus_Virtul_GRLL.Models.Enums.NivelCurso.Intermedio => "bg-primary",
+        Campus_Virtul_GRLL.Models.Enums.NivelCurso.Avanzado => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    var modalidadIcono = Model.Modalidad switch
+    {
+        Campus_Virtul_GRLL.Models.Enums.Modalidad.Presencial => "🏢",
+        Campus_Virtul_GRLL.Models.Enums.Modalidad.Virtual => "💻",
+        Campus_Virtul_GRLL.Models.Enums.Modalidad.Hibrido => "🔄",
+        _ => "📚"
+    };
+
+    var imagenUrl = string.IsNullOrWhiteSpace(Model.ImagenUrl)
+        ? "https://placehold.co/800x400?text=Sin+Imagen"
+        : Model.ImagenUrl;
+}
+
+<div class="container-fluid py-4">
+    <!-- Encabezado -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-action="Index">Cursos</a></li>
+                    <li class="breadcrumb-item active">@Model.Codigo</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Volver a Lista
+            </a>
+        </div>
+    </div>
+
+    <!-- Mensajes -->
+    @if (TempData["Exito"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> @TempData["Exito"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(Model.MensajeAdvertencia))
+    {
+        <div class="alert alert-warning" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> @Model.MensajeAdvertencia
+        </div>
+    }
+
+    <div class="row">
+        <!-- Columna Principal -->
+        <div class="col-lg-8">
+            <!-- Imagen y Título -->
+            <div class="card shadow-sm mb-4">
+                <img src="@imagenUrl" class="card-img-top" alt="@Model.Titulo" style="max-height: 400px; object-fit: cover;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <small class="text-muted">@Model.Codigo</small>
+                            <h2 class="mb-2">@Model.Titulo</h2>
+                            <div class="mb-2">
+                                <span class="badge @estadoClass me-2">@Model.Estado</span>
+                                <span class="badge @nivelClass me-2">@Model.Nivel</span>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="bi bi-tag"></i> @Model.Categoria
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información General -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <i class="bi bi-clock text-primary"></i>
+                            <strong>Duración:</strong> @Model.Duracion horas
+                        </div>
+                        <div class="col-md-4">
+                            <span>@modalidadIcono</span>
+                            <strong>Modalidad:</strong> @Model.Modalidad
+                        </div>
+                        <div class="col-md-4">
+                            <i class="bi bi-people text-primary"></i>
+                            <strong>Capacidad:</strong> @Model.CapacidadMaxima personas
+                        </div>
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class="mb-4">
+                        <h4><i class="bi bi-file-text"></i> Descripción</h4>
+                        <p class="text-justify">@Model.Descripcion</p>
+                    </div>
+
+                    <!-- Objetivos -->
+                    @if (!string.IsNullOrWhiteSpace(Model.Objetivos))
+                    {
+                        <div class="mb-4">
+                            <h4><i class="bi bi-bullseye"></i> Objetivos del Curso</h4>
+                            <p class="text-justify">@Model.Objetivos</p>
+                        </div>
+                    }
+
+                    <!-- Fechas -->
+                    <div class="mb-3">
+                        <h4><i class="bi bi-calendar-range"></i> Fechas</h4>
+                        <div class="row g-3">
+                            @if (Model.FechaInicio.HasValue)
+                            {
+                                <div class="col-md-6">
+                                    <strong>Fecha de Inicio:</strong><br />
+                                    @Model.FechaInicio.Value.ToString("dd/MM/yyyy")
+                                </div>
+                            }
+                            @if (Model.FechaFin.HasValue)
+                            {
+                                <div class="col-md-6">
+                                    <strong>Fecha de Fin:</strong><br />
+                                    @Model.FechaFin.Value.ToString("dd/MM/yyyy")
+                                </div>
+                            }
+                            @if (Model.FechaPublicacion.HasValue)
+                            {
+                                <div class="col-md-6">
+                                    <strong>Fecha de Publicación:</strong><br />
+                                    @Model.FechaPublicacion.Value.ToString("dd/MM/yyyy HH:mm")
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna Lateral -->
+        <div class="col-lg-4">
+            <!-- Acciones -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-gear"></i> Acciones</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        @if (Model.PermitirEdicion)
+                        {
+                            <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-outline-primary">
+                                <i class="bi bi-pencil"></i> Editar Curso
+                            </a>
+                        }
+
+                        @if (Model.PermitirCambioEstado)
+                        {
+                            <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#cambiarEstadoModal">
+                                <i class="bi bi-arrow-repeat"></i> Cambiar Estado
+                            </button>
+                        }
+
+                        <!-- Botón Asignar/Cambiar Profesor -->
+                        @if (Model.Estado != Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Cancelado)
+                        {
+                            <a asp-action="AsignarProfesor" asp-route-id="@Model.Id" class="btn btn-outline-success">
+                                <i class="bi bi-person-plus"></i> @(Model.ProfesorAsignado.HasValue ? "Cambiar Profesor" : "Asignar Profesor")
+                            </a>
+                        }
+
+                        @if (Model.PermitirEliminacion)
+                        {
+                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#eliminarModal">
+                                <i class="bi bi-trash"></i> Eliminar Curso
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-outline-secondary" disabled>
+                                <i class="bi bi-trash"></i> No se puede eliminar
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profesor Asignado -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header @(Model.ProfesorAsignado.HasValue ? "bg-success" : "bg-secondary") text-white">
+                    <h5 class="mb-0"><i class="bi bi-person-badge"></i> Profesor Asignado</h5>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.NombreProfesor))
+                    {
+                        <div class="mb-2">
+                            <p class="mb-1"><strong>@Model.NombreProfesor</strong></p>
+                            <p class="mb-1 small text-muted">
+                                <i class="bi bi-envelope"></i> @Model.EmailProfesor
+                            </p>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a asp-controller="AdminProfesores" asp-action="Cursos" asp-route-id="@Model.ProfesorAsignado"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-list-ul"></i> Ver todos sus cursos
+                            </a>
+                            <a asp-action="AsignarProfesor" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-arrow-repeat"></i> Cambiar profesor
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-3">Sin profesor asignado</p>
+                        <a asp-action="AsignarProfesor" asp-route-id="@Model.Id" class="btn btn-sm btn-success w-100">
+                            <i class="bi bi-person-plus"></i> Asignar Profesor
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <!-- Metadatos -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Información del Sistema</h5>
+                </div>
+                <div class="card-body">
+                    <p class="small mb-2">
+                        <strong>Creado por:</strong><br />
+                        @Model.NombreCreador
+                    </p>
+                    <p class="small mb-2">
+                        <strong>Fecha de creación:</strong><br />
+                        @Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")
+                    </p>
+                    @if (Model.FechaUltimaActualizacion.HasValue)
+                    {
+                        <p class="small mb-0">
+                            <strong>Última actualización:</strong><br />
+                            @Model.FechaUltimaActualizacion.Value.ToString("dd/MM/yyyy HH:mm")
+                        </p>
+                    }
+                </div>
+            </div>
+
+            <!-- Estadísticas (futuro) -->
+            @if (Model.NumeroInscritos.HasValue || Model.NumeroMateriales.HasValue || Model.NumeroEvaluaciones.HasValue)
+            {
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Estadísticas</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.NumeroInscritos.HasValue)
+                        {
+                            <p class="mb-2">
+                                <i class="bi bi-people"></i> <strong>Inscritos:</strong> @Model.NumeroInscritos
+                            </p>
+                        }
+                        @if (Model.NumeroMateriales.HasValue)
+                        {
+                            <p class="mb-2">
+                                <i class="bi bi-file-earmark-text"></i> <strong>Materiales:</strong> @Model.NumeroMateriales
+                            </p>
+                        }
+                        @if (Model.NumeroEvaluaciones.HasValue)
+                        {
+                            <p class="mb-0">
+                                <i class="bi bi-clipboard-check"></i> <strong>Evaluaciones:</strong> @Model.NumeroEvaluaciones
+                            </p>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal Cambiar Estado -->
+<div class="modal fade" id="cambiarEstadoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-arrow-repeat"></i> Cambiar Estado del Curso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Estado actual: <strong class="badge @estadoClass">@Model.Estado</strong></p>
+                <form id="cambiarEstadoForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <div class="mb-3">
+                        <label for="nuevoEstado" class="form-label">Nuevo Estado:</label>
+                        <select name="nuevoEstado" id="nuevoEstado" class="form-select" required>
+                            <option value="">Seleccione un estado...</option>
+                            <option value="Borrador">Borrador</option>
+                            <option value="Publicado">Publicado</option>
+                            <option value="EnCurso">En Curso</option>
+                            <option value="Finalizado">Finalizado</option>
+                            <option value="Cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                    <div class="alert alert-info small">
+                        <i class="bi bi-info-circle"></i> Algunas transiciones de estado pueden estar restringidas según las reglas del negocio.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="cambiarEstado()">
+                    <i class="bi bi-check"></i> Cambiar Estado
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Eliminar -->
+<div class="modal fade" id="eliminarModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>¿Está seguro de que desea eliminar este curso?</strong></p>
+                <p class="mb-0">
+                    <strong>Curso:</strong> @Model.Titulo<br />
+                    <strong>Código:</strong> @Model.Codigo
+                </p>
+                @if (!string.IsNullOrEmpty(Model.NombreProfesor))
+                {
+                    <div class="alert alert-warning mt-3">
+                        <i class="bi bi-exclamation-circle"></i> Este curso tiene un profesor asignado.
+                    </div>
+                }
+                <p class="text-danger mt-3"><strong>Esta acción no se puede deshacer.</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form asp-action="Eliminar" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Sí, Eliminar Curso
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function cambiarEstado() {
+            const form = document.getElementById('cambiarEstadoForm');
+            const formData = new FormData(form);
+
+            fetch('@Url.Action("CambiarEstado", "AdminCursos")', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.mensaje);
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.mensaje);
+                    }
+                })
+                .catch(error => {
+                    alert('Error al cambiar el estado: ' + error);
+                });
+        }
+    </script>
+}

@@ -16,6 +16,7 @@ namespace Campus_Virtul_GRLL.Data
         public DbSet <Solicitud> Solicituds { get; set; }
         public DbSet<SolicitudRevisión> SolicitudsRevision { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Curso> Cursos { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -175,6 +176,21 @@ namespace Campus_Virtul_GRLL.Data
                 .HasForeignKey(columna => columna.IdRol)
                 .OnDelete(DeleteBehavior.Restrict);
 
+                // Configuración de Soft Delete
+                tabla.HasOne(columna => columna.UsuarioEliminador)
+                .WithMany()
+                .HasForeignKey(columna => columna.EliminadoPor)
+                .OnDelete(DeleteBehavior.Restrict);
+
+                tabla.Property(columna => columna.EsEliminado)
+                .HasDefaultValue(false);
+
+                tabla.Property(columna => columna.FechaEliminacion)
+                .IsRequired(false);
+
+                tabla.Property(columna => columna.EliminadoPor)
+                .IsRequired(false);
+
                 tabla.Property(columna => columna.Nombres)
                 .HasMaxLength(50)
                 .IsRequired();
@@ -222,12 +238,91 @@ namespace Campus_Virtul_GRLL.Data
                 .IsRequired();
             });
 
+            // ============================================
+            // CONFIGURACIÓN DE CURSO
+            // ============================================
+            modelBuilder.Entity<Curso>(tabla =>
+            {
+                tabla.HasKey(columna => columna.Id);
+
+                tabla.Property(columna => columna.Id)
+                .UseIdentityColumn()
+                .ValueGeneratedOnAdd();
+
+                // Índice único en el código del curso
+                tabla.HasIndex(columna => columna.Codigo)
+                .IsUnique();
+
+                tabla.Property(columna => columna.Codigo)
+                .HasMaxLength(20)
+                .IsRequired();
+
+                tabla.Property(columna => columna.Titulo)
+                .HasMaxLength(200)
+                .IsRequired();
+
+                tabla.Property(columna => columna.Descripcion)
+                .HasMaxLength(2000)
+                .IsRequired();
+
+                tabla.Property(columna => columna.Objetivos)
+                .HasMaxLength(1000);
+
+                tabla.Property(columna => columna.Duracion)
+                .IsRequired();
+
+                tabla.Property(columna => columna.Modalidad)
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .IsRequired();
+
+                tabla.Property(columna => columna.Categoria)
+                .HasMaxLength(100)
+                .IsRequired();
+
+                tabla.Property(columna => columna.Nivel)
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .IsRequired();
+
+                tabla.Property(columna => columna.CapacidadMaxima)
+                .IsRequired();
+
+                tabla.Property(columna => columna.Estado)
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .IsRequired();
+
+                tabla.Property(columna => columna.ImagenUrl)
+                .HasMaxLength(500);
+
+                tabla.Property(columna => columna.FechaCreacion)
+                .IsRequired();
+
+                tabla.Property(columna => columna.EsEliminado)
+                .HasDefaultValue(false)
+                .IsRequired();
+
+                // Relación con Usuario (Profesor)
+                tabla.HasOne(columna => columna.Profesor)
+                .WithMany()
+                .HasForeignKey(columna => columna.ProfesorAsignado)
+                .OnDelete(DeleteBehavior.Restrict);
+
+                // Relación con Usuario (Creador)
+                tabla.HasOne(columna => columna.Creador)
+                .WithMany()
+                .HasForeignKey(columna => columna.CreadoPor)
+                .OnDelete(DeleteBehavior.Restrict);
+            });
+
             modelBuilder.Entity<Solicitud>().ToTable("Solicitud");
             modelBuilder.Entity<SolicitudRevisión>().ToTable("SolicitudRevisión");
             modelBuilder.Entity<Usuario>().ToTable("Usuario");
             modelBuilder.Entity<Rol>().ToTable("Rol");
             modelBuilder.Entity<Permisos>().ToTable("Permisos");
             modelBuilder.Entity<Modulo>().ToTable("Modulo");
+            modelBuilder.Entity<Curso>().ToTable("Curso");
         }
     }        
 }

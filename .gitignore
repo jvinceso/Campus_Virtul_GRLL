@@ -361,3 +361,11 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+.claude/settings.local.json
+CLAUDE.md
+/tareas-promp
+PROGRESO_RF-04.md
+/GUIA_INICIO_RAPIDO.md
+/IMPLEMENTACION_RF-04_COMPLETA.md
+/IMPLEMENTACION_RF-07.md
+/MEJORAS_RF-02_LOGIN.md

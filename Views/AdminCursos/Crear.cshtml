@@ -1,0 +1,339 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.CrearCursoViewModel
+
+@{
+    ViewData["Title"] = "Crear Nuevo Curso";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-10 offset-lg-1">
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="bi bi-plus-circle"></i> Crear Nuevo Curso</h2>
+                    <p class="text-muted">Complete la información del curso en cada pestaña</p>
+                </div>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver a Lista
+                </a>
+            </div>
+
+            <!-- Mensajes de validación -->
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <h5><i class="bi bi-exclamation-triangle"></i> Errores de Validación</h5>
+                    <ul class="mb-0">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- Formulario con Tabs -->
+            <div class="card shadow">
+                <div class="card-body">
+                    <form asp-action="Crear" method="post" id="crearCursoForm">
+                        @Html.AntiForgeryToken()
+
+                        <!-- Tabs Navigation -->
+                        <ul class="nav nav-tabs mb-4" id="crearCursoTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="info-basica-tab" data-bs-toggle="tab"
+                                        data-bs-target="#info-basica" type="button" role="tab">
+                                    <i class="bi bi-info-circle"></i> 1. Información Básica
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="descripcion-tab" data-bs-toggle="tab"
+                                        data-bs-target="#descripcion" type="button" role="tab">
+                                    <i class="bi bi-card-text"></i> 2. Descripción
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="detalles-tab" data-bs-toggle="tab"
+                                        data-bs-target="#detalles" type="button" role="tab">
+                                    <i class="bi bi-calendar-check"></i> 3. Detalles y Fechas
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="imagen-tab" data-bs-toggle="tab"
+                                        data-bs-target="#imagen" type="button" role="tab">
+                                    <i class="bi bi-image"></i> 4. Imagen y Estado
+                                </button>
+                            </li>
+                        </ul>
+
+                        <!-- Tabs Content -->
+                        <div class="tab-content" id="crearCursoTabsContent">
+
+                            <!-- TAB 1: INFORMACIÓN BÁSICA -->
+                            <div class="tab-pane fade show active" id="info-basica" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label asp-for="Codigo" class="form-label"></label>
+                                        <input asp-for="Codigo" class="form-control" readonly
+                                               placeholder="Se generará automáticamente" />
+                                        <small class="form-text text-muted">El código se genera automáticamente</small>
+                                        <span asp-validation-for="Codigo" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-8">
+                                        <label asp-for="Titulo" class="form-label"></label>
+                                        <input asp-for="Titulo" class="form-control" required
+                                               placeholder="Ej: Gestión de Proyectos con Metodologías Ágiles" />
+                                        <span asp-validation-for="Titulo" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="Categoria" class="form-label"></label>
+                                        <select asp-for="Categoria" class="form-select" required>
+                                            <option value="">Seleccione una categoría...</option>
+                                            @foreach (var cat in Model.CategoriasDisponibles)
+                                            {
+                                                <option value="@cat">@cat</option>
+                                            }
+                                        </select>
+                                        <span asp-validation-for="Categoria" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label asp-for="Nivel" class="form-label"></label>
+                                        <select asp-for="Nivel" class="form-select" required>
+                                            <option value="">Seleccione...</option>
+                                            <option value="Basico">Básico</option>
+                                            <option value="Intermedio">Intermedio</option>
+                                            <option value="Avanzado">Avanzado</option>
+                                        </select>
+                                        <span asp-validation-for="Nivel" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label asp-for="Modalidad" class="form-label"></label>
+                                        <select asp-for="Modalidad" class="form-select" required>
+                                            <option value="">Seleccione...</option>
+                                            <option value="Presencial">🏢 Presencial</option>
+                                            <option value="Virtual">💻 Virtual</option>
+                                            <option value="Hibrido">🔄 Híbrido</option>
+                                        </select>
+                                        <span asp-validation-for="Modalidad" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 text-end">
+                                    <button type="button" class="btn btn-primary" onclick="nextTab()">
+                                        Siguiente <i class="bi bi-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- TAB 2: DESCRIPCIÓN -->
+                            <div class="tab-pane fade" id="descripcion" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label asp-for="Descripcion" class="form-label"></label>
+                                        <textarea asp-for="Descripcion" class="form-control" rows="6" required
+                                                  placeholder="Describa el curso, su enfoque y lo que aprenderán los participantes..."
+                                                  maxlength="2000"></textarea>
+                                        <small class="form-text text-muted">
+                                            <span id="descripcionChars">0</span>/2000 caracteres
+                                        </small>
+                                        <span asp-validation-for="Descripcion" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label asp-for="Objetivos" class="form-label"></label>
+                                        <textarea asp-for="Objetivos" class="form-control" rows="4"
+                                                  placeholder="Objetivos de aprendizaje (opcional)..."
+                                                  maxlength="1000"></textarea>
+                                        <small class="form-text text-muted">
+                                            <span id="objetivosChars">0</span>/1000 caracteres
+                                        </small>
+                                        <span asp-validation-for="Objetivos" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 d-flex justify-content-between">
+                                    <button type="button" class="btn btn-secondary" onclick="prevTab()">
+                                        <i class="bi bi-arrow-left"></i> Anterior
+                                    </button>
+                                    <button type="button" class="btn btn-primary" onclick="nextTab()">
+                                        Siguiente <i class="bi bi-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- TAB 3: DETALLES Y FECHAS -->
+                            <div class="tab-pane fade" id="detalles" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label asp-for="Duracion" class="form-label"></label>
+                                        <div class="input-group">
+                                            <input asp-for="Duracion" type="number" class="form-control" required
+                                                   min="1" max="1000" placeholder="40" />
+                                            <span class="input-group-text">horas</span>
+                                        </div>
+                                        <span asp-validation-for="Duracion" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="CapacidadMaxima" class="form-label"></label>
+                                        <div class="input-group">
+                                            <input asp-for="CapacidadMaxima" type="number" class="form-control" required
+                                                   min="1" max="500" placeholder="30" />
+                                            <span class="input-group-text">personas</span>
+                                        </div>
+                                        <span asp-validation-for="CapacidadMaxima" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="FechaInicio" class="form-label"></label>
+                                        <input asp-for="FechaInicio" type="date" class="form-control" />
+                                        <small class="form-text text-muted">Opcional</small>
+                                        <span asp-validation-for="FechaInicio" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="FechaFin" class="form-label"></label>
+                                        <input asp-for="FechaFin" type="date" class="form-control" />
+                                        <small class="form-text text-muted">Opcional (debe ser posterior a fecha de inicio)</small>
+                                        <span asp-validation-for="FechaFin" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 d-flex justify-content-between">
+                                    <button type="button" class="btn btn-secondary" onclick="prevTab()">
+                                        <i class="bi bi-arrow-left"></i> Anterior
+                                    </button>
+                                    <button type="button" class="btn btn-primary" onclick="nextTab()">
+                                        Siguiente <i class="bi bi-arrow-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- TAB 4: IMAGEN Y ESTADO -->
+                            <div class="tab-pane fade" id="imagen" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-md-8">
+                                        <label asp-for="ImagenUrl" class="form-label"></label>
+                                        <input asp-for="ImagenUrl" type="url" class="form-control" id="imagenUrlInput"
+                                               placeholder="https://ejemplo.com/imagen.jpg" />
+                                        <small class="form-text text-muted">URL de la imagen del curso (opcional)</small>
+                                        <span asp-validation-for="ImagenUrl" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label">Vista Previa</label>
+                                        <img id="imagenPreview" src="https://placehold.co/200x120?text=Sin+Imagen"
+                                             class="img-fluid rounded" alt="Preview" style="max-height: 120px;" />
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="Estado" class="form-label"></label>
+                                        <select asp-for="Estado" class="form-select" required>
+                                            <option value="Borrador" selected>Borrador (recomendado)</option>
+                                            <option value="Publicado">Publicado</option>
+                                        </select>
+                                        <small class="form-text text-muted">
+                                            Se recomienda crear como Borrador y publicar después de revisarlo
+                                        </small>
+                                        <span asp-validation-for="Estado" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 d-flex justify-content-between">
+                                    <button type="button" class="btn btn-secondary" onclick="prevTab()">
+                                        <i class="bi bi-arrow-left"></i> Anterior
+                                    </button>
+                                    <div>
+                                        <button type="submit" name="accion" value="guardarBorrador" class="btn btn-outline-primary">
+                                            <i class="bi bi-save"></i> Guardar como Borrador
+                                        </button>
+                                        <button type="submit" name="accion" value="guardarPublicar" class="btn btn-success">
+                                            <i class="bi bi-check-circle"></i> Guardar y Publicar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        // Navegación entre tabs
+        let currentTab = 0;
+        const tabs = ['info-basica', 'descripcion', 'detalles', 'imagen'];
+
+        function nextTab() {
+            if (currentTab < tabs.length - 1) {
+                currentTab++;
+                showTab(currentTab);
+            }
+        }
+
+        function prevTab() {
+            if (currentTab > 0) {
+                currentTab--;
+                showTab(currentTab);
+            }
+        }
+
+        function showTab(index) {
+            const tab = new bootstrap.Tab(document.getElementById(tabs[index] + '-tab'));
+            tab.show();
+        }
+
+        // Contador de caracteres para descripción
+        document.getElementById('Descripcion')?.addEventListener('input', function() {
+            document.getElementById('descripcionChars').textContent = this.value.length;
+        });
+
+        // Contador de caracteres para objetivos
+        document.getElementById('Objetivos')?.addEventListener('input', function() {
+            document.getElementById('objetivosChars').textContent = this.value.length;
+        });
+
+        // Preview de imagen
+        document.getElementById('imagenUrlInput')?.addEventListener('blur', function() {
+            const url = this.value;
+            if (url) {
+                document.getElementById('imagenPreview').src = url;
+            } else {
+                document.getElementById('imagenPreview').src = 'https://placehold.co/200x120?text=Sin+Imagen';
+            }
+        });
+
+        // Validación de fechas
+        document.getElementById('FechaInicio')?.addEventListener('change', validateFechas);
+        document.getElementById('FechaFin')?.addEventListener('change', validateFechas);
+
+        function validateFechas() {
+            const fechaInicio = document.getElementById('FechaInicio').value;
+            const fechaFin = document.getElementById('FechaFin').value;
+
+            if (fechaInicio && fechaFin) {
+                if (new Date(fechaFin) <= new Date(fechaInicio)) {
+                    alert('La fecha de fin debe ser posterior a la fecha de inicio');
+                    document.getElementById('FechaFin').value = '';
+                }
+            }
+        }
+
+        // Actualizar estado del botón según el tab actual
+        document.querySelectorAll('[data-bs-toggle="tab"]').forEach((tabEl, index) => {
+            tabEl.addEventListener('shown.bs.tab', function () {
+                currentTab = index;
+            });
+        });
+    </script>
+}

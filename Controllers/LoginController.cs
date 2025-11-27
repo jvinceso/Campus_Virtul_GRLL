@@ -27,7 +27,7 @@ namespace Campus_Virtul_GRLL.Controllers
             return View("Login");
         }
 
-        /// Procesa el login del usuario
+        /// Procesa el login del usuario (con DNI o Email)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string DNI, string Contrasena)
@@ -43,37 +43,48 @@ namespace Campus_Virtul_GRLL.Controllers
                     return View("Login");
                 }
 
-                DNI = DNI.Trim();
+                string credencial = DNI.Trim();
                 Contrasena = Contrasena.Trim();
 
-                // Validar formato de DNI
-                if (DNI.Length != 8 || !DNI.All(char.IsDigit))
+                _logger.LogInformation($"Intento de login con credencial: {credencial}");
+
+                // ============================================
+                // 2. BUSCAR USUARIO EN LA BASE DE DATOS (por DNI o Email)
+                // ============================================
+                Usuario? usuario = null;
+
+                // Determinar si es DNI (8 dígitos) o Email
+                bool esDNI = credencial.Length == 8 && credencial.All(char.IsDigit);
+
+                if (esDNI)
                 {
-                    TempData["Error"] = "El DNI debe contener exactamente 8 dígitos.";
-                    return View("Login");
+                    // Buscar por DNI
+                    usuario = await _appContext.Usuarios
+                        .Include(u => u.Rol)
+                        .FirstOrDefaultAsync(u => u.DNI == credencial);
                 }
-
-                _logger.LogInformation($"Intento de login para DNI: {DNI}");
-
-                // ============================================
-                // 2. BUSCAR USUARIO EN LA BASE DE DATOS
-                // ============================================
-                var usuario = await _appContext.Usuarios
-                    .Include(u => u.Rol)
-                    .FirstOrDefaultAsync(u => u.DNI == DNI);
+                else
+                {
+                    // Buscar por Email
+                    usuario = await _appContext.Usuarios
+                        .Include(u => u.Rol)
+                        .FirstOrDefaultAsync(u => u.CorreoElectronico == credencial);
+                }
 
                 // Validar que el usuario existe
                 if (usuario == null)
                 {
-                    _logger.LogWarning($"Usuario no encontrado - DNI: {DNI}");
-                    TempData["Error"] = "El DNI ingresado no está registrado en el sistema.";
+                    _logger.LogWarning($"Usuario no encontrado - Credencial: {credencial}");
+                    TempData["Error"] = esDNI
+                        ? "El DNI ingresado no está registrado en el sistema."
+                        : "El Email ingresado no está registrado en el sistema.";
                     return View("Login");
                 }
 
                 // Validar que el usuario esté activo (Estado = 1 o true)
                 if (!usuario.Estado)
                 {
-                    _logger.LogWarning($"Usuario inactivo - DNI: {DNI}, ID: {usuario.IdUsuario}");
+                    _logger.LogWarning($"Usuario inactivo - Credencial: {credencial}, ID: {usuario.IdUsuario}");
                     TempData["Error"] = "Su cuenta está inactiva. Contacte al administrador.";
                     return View("Login");
                 }
@@ -98,8 +109,8 @@ namespace Campus_Virtul_GRLL.Controllers
 
                 if (!contrasenaCorrecta)
                 {
-                    _logger.LogWarning($"Contraseña incorrecta - DNI: {DNI}");
-                    TempData["Error"] = "DNI o contraseña incorrectos.";
+                    _logger.LogWarning($"Contraseña incorrecta - Credencial: {credencial}");
+                    TempData["Error"] = "Credenciales incorrectas.";
                     return View("Login");
                 }
 
@@ -327,6 +338,37 @@ namespace Campus_Virtul_GRLL.Controllers
                 var errorMessage = ex.InnerException?.Message ?? ex.Message;
                 TempData["Error"] = $"Error inesperado: {errorMessage}";
                 return View("CambiarContrasena");
+            }
+        }
+
+        /// <summary>
+        /// Cierra la sesión del usuario
+        /// GET: /Login/Logout
+        /// </summary>
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            try
+            {
+                var userName = User.Identity?.Name ?? "Usuario desconocido";
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0";
+
+                _logger.LogInformation($"🚪 Cerrando sesión - Usuario: {userName} (ID: {userId})");
+
+                // Eliminar cookie de autenticación
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+                _logger.LogInformation($"✅ Sesión cerrada exitosamente - Usuario: {userName}");
+
+                TempData["Mensaje"] = "Sesión cerrada correctamente.";
+                return RedirectToAction("Index", "Login");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Error al cerrar sesión");
+                TempData["Error"] = "Error al cerrar la sesión. Por favor, intente nuevamente.";
+                return RedirectToAction("Index", "Dashboard");
             }
         }
 

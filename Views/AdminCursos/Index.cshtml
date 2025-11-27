@@ -1,0 +1,257 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.CursoIndexViewModel
+
+@{
+    ViewData["Title"] = "Gestión de Cursos";
+}
+
+<div class="container-fluid py-4">
+    <!-- Encabezado -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="mb-0">
+                <i class="bi bi-book"></i> Gestión de Cursos
+            </h2>
+            <p class="text-muted">Administra el catálogo completo de cursos del Campus Virtual</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-action="Crear" class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-circle"></i> Crear Nuevo Curso
+            </a>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">@Model.TotalCursos</h3>
+                    <p class="mb-0">Total de Cursos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">@Model.CursosPublicados</h3>
+                    <p class="mb-0">Publicados</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">@Model.CursosEnCurso</h3>
+                    <p class="mb-0">En Curso</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h3 class="mb-0">@Model.CursosFinalizados</h3>
+                    <p class="mb-0">Finalizados</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensajes -->
+    @if (TempData["Exito"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> @TempData["Exito"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Filtros y Búsqueda -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">
+                <i class="bi bi-funnel"></i> Filtros y Búsqueda
+            </h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="Index" method="get" id="filtrosForm">
+                <div class="row g-3">
+                    <!-- Búsqueda por texto -->
+                    <div class="col-md-4">
+                        <label class="form-label">Buscar</label>
+                        <input type="text" name="busqueda" class="form-control"
+                               placeholder="Título, código o categoría..."
+                               value="@Model.BusquedaTexto">
+                    </div>
+
+                    <!-- Filtro por Estado -->
+                    <div class="col-md-2">
+                        <label class="form-label">Estado</label>
+                        <select name="estado" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="Borrador" selected="@(Model.FiltroEstado == Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Borrador)">Borrador</option>
+                            <option value="Publicado" selected="@(Model.FiltroEstado == Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Publicado)">Publicado</option>
+                            <option value="EnCurso" selected="@(Model.FiltroEstado == Campus_Virtul_GRLL.Models.Enums.EstadoCurso.EnCurso)">En Curso</option>
+                            <option value="Finalizado" selected="@(Model.FiltroEstado == Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Finalizado)">Finalizado</option>
+                            <option value="Cancelado" selected="@(Model.FiltroEstado == Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Cancelado)">Cancelado</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro por Modalidad -->
+                    <div class="col-md-2">
+                        <label class="form-label">Modalidad</label>
+                        <select name="modalidad" class="form-select">
+                            <option value="">Todas</option>
+                            <option value="Presencial" selected="@(Model.FiltroModalidad == Campus_Virtul_GRLL.Models.Enums.Modalidad.Presencial)">Presencial</option>
+                            <option value="Virtual" selected="@(Model.FiltroModalidad == Campus_Virtul_GRLL.Models.Enums.Modalidad.Virtual)">Virtual</option>
+                            <option value="Hibrido" selected="@(Model.FiltroModalidad == Campus_Virtul_GRLL.Models.Enums.Modalidad.Hibrido)">Híbrido</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro por Nivel -->
+                    <div class="col-md-2">
+                        <label class="form-label">Nivel</label>
+                        <select name="nivel" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="Basico" selected="@(Model.FiltroNivel == Campus_Virtul_GRLL.Models.Enums.NivelCurso.Basico)">Básico</option>
+                            <option value="Intermedio" selected="@(Model.FiltroNivel == Campus_Virtul_GRLL.Models.Enums.NivelCurso.Intermedio)">Intermedio</option>
+                            <option value="Avanzado" selected="@(Model.FiltroNivel == Campus_Virtul_GRLL.Models.Enums.NivelCurso.Avanzado)">Avanzado</option>
+                        </select>
+                    </div>
+
+                    <!-- Ordenamiento -->
+                    <div class="col-md-2">
+                        <label class="form-label">Ordenar por</label>
+                        <select name="orden" class="form-select">
+                            <option value="recientes" selected="@(Model.Ordenamiento == "recientes" || string.IsNullOrEmpty(Model.Ordenamiento))">Más recientes</option>
+                            <option value="alfabetico" selected="@(Model.Ordenamiento == "alfabetico")">Alfabético</option>
+                            <option value="proximosIniciar" selected="@(Model.Ordenamiento == "proximosIniciar")">Próximos a iniciar</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <label class="form-label">Categoría</label>
+                        <select name="categoria" class="form-select">
+                            <option value="">Todas las categorías</option>
+                            @foreach (var cat in Model.CategoriasDisponibles)
+                            {
+                                <option value="@cat" selected="@(Model.FiltroCategoria == cat)">@cat</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-12 text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Limpiar Filtros
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Grid de Cursos -->
+    @if (Model.Cursos.Any())
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-4">
+            @foreach (var curso in Model.Cursos)
+            {
+                <div class="col">
+                    @await Html.PartialAsync("_CursoCard", curso)
+                </div>
+            }
+        </div>
+
+        <!-- Paginación -->
+        @if (Model.TotalPaginas > 1)
+        {
+            <nav aria-label="Paginación de cursos">
+                <ul class="pagination justify-content-center">
+                    <!-- Anterior -->
+                    <li class="page-item @(Model.PaginaActual == 1 ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-busqueda="@Model.BusquedaTexto"
+                           asp-route-estado="@Model.FiltroEstado"
+                           asp-route-modalidad="@Model.FiltroModalidad"
+                           asp-route-categoria="@Model.FiltroCategoria"
+                           asp-route-nivel="@Model.FiltroNivel"
+                           asp-route-orden="@Model.Ordenamiento"
+                           asp-route-pagina="@(Model.PaginaActual - 1)">
+                            Anterior
+                        </a>
+                    </li>
+
+                    <!-- Números de página -->
+                    @for (int i = 1; i <= Model.TotalPaginas; i++)
+                    {
+                        <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
+                            <a class="page-link" asp-action="Index"
+                               asp-route-busqueda="@Model.BusquedaTexto"
+                               asp-route-estado="@Model.FiltroEstado"
+                               asp-route-modalidad="@Model.FiltroModalidad"
+                               asp-route-categoria="@Model.FiltroCategoria"
+                               asp-route-nivel="@Model.FiltroNivel"
+                               asp-route-orden="@Model.Ordenamiento"
+                               asp-route-pagina="@i">
+                                @i
+                            </a>
+                        </li>
+                    }
+
+                    <!-- Siguiente -->
+                    <li class="page-item @(Model.PaginaActual == Model.TotalPaginas ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-busqueda="@Model.BusquedaTexto"
+                           asp-route-estado="@Model.FiltroEstado"
+                           asp-route-modalidad="@Model.FiltroModalidad"
+                           asp-route-categoria="@Model.FiltroCategoria"
+                           asp-route-nivel="@Model.FiltroNivel"
+                           asp-route-orden="@Model.Ordenamiento"
+                           asp-route-pagina="@(Model.PaginaActual + 1)">
+                            Siguiente
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <p class="text-center text-muted">
+                Mostrando página @Model.PaginaActual de @Model.TotalPaginas
+                (@Model.Cursos.Count cursos de @Model.TotalCursos total)
+            </p>
+        }
+    }
+    else
+    {
+        <div class="alert alert-info text-center" role="alert">
+            <i class="bi bi-info-circle fs-1"></i>
+            <h4 class="mt-3">No se encontraron cursos</h4>
+            <p>No hay cursos que coincidan con los filtros seleccionados.</p>
+            <a asp-action="Index" class="btn btn-primary">Ver todos los cursos</a>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-submit del formulario cuando cambien los filtros (opcional)
+        document.querySelectorAll('#filtrosForm select').forEach(function(select) {
+            select.addEventListener('change', function() {
+                // Opcional: descomentar para auto-submit
+                // document.getElementById('filtrosForm').submit();
+            });
+        });
+    </script>
+}

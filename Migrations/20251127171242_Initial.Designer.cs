@@ -4,6 +4,7 @@ using Campus_Virtul_GRLL.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Campus_Virtul_GRLL.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20251127171242_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -350,14 +353,6 @@ namespace Campus_Virtul_GRLL.Migrations
                         .HasMaxLength(8)
                         .HasColumnType("nvarchar(8)");
 
-                    b.Property<int?>("EliminadoPor")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("EsEliminado")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
                     b.Property<bool>("Estado")
                         .HasColumnType("bit");
 
@@ -366,9 +361,6 @@ namespace Campus_Virtul_GRLL.Migrations
 
                     b.Property<DateOnly>("FechaCreacion")
                         .HasColumnType("date");
-
-                    b.Property<DateTime?>("FechaEliminacion")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("IdRol")
                         .HasColumnType("int");
@@ -389,8 +381,6 @@ namespace Campus_Virtul_GRLL.Migrations
                         .HasColumnType("nvarchar(15)");
 
                     b.HasKey("IdUsuario");
-
-                    b.HasIndex("EliminadoPor");
 
                     b.HasIndex("IdRol");
 
@@ -466,11 +456,6 @@ namespace Campus_Virtul_GRLL.Migrations
 
             modelBuilder.Entity("Campus_Virtul_GRLL.Models.Usuario", b =>
                 {
-                    b.HasOne("Campus_Virtul_GRLL.Models.Usuario", "UsuarioEliminador")
-                        .WithMany()
-                        .HasForeignKey("EliminadoPor")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("Campus_Virtul_GRLL.Models.Rol", "Rol")
                         .WithMany()
                         .HasForeignKey("IdRol")
@@ -478,8 +463,6 @@ namespace Campus_Virtul_GRLL.Migrations
                         .IsRequired();
 
                     b.Navigation("Rol");
-
-                    b.Navigation("UsuarioEliminador");
                 });
 #pragma warning restore 612, 618
         }

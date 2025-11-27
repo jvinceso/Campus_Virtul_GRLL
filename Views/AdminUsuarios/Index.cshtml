@@ -1,0 +1,516 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.UsuariosIndexViewModel
+
+@{
+    ViewData["Title"] = "Gestión de Usuarios";
+}
+
+<div class="container-fluid py-4">
+    <!-- Encabezado con estadísticas -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="mb-3">
+                <i class="bi bi-people-fill"></i> Gestión de Usuarios
+            </h2>
+        </div>
+    </div>
+
+    <!-- Tarjetas de estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <i class="bi bi-people fs-1 text-primary"></i>
+                    <h3 class="mt-2 mb-0">@Model.TotalUsuarios</h3>
+                    <p class="text-muted mb-0">Total Usuarios</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle fs-1 text-success"></i>
+                    <h3 class="mt-2 mb-0">@Model.UsuariosActivos</h3>
+                    <p class="text-muted mb-0">Activos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-danger">
+                <div class="card-body text-center">
+                    <i class="bi bi-shield-fill-check fs-1 text-danger"></i>
+                    <h3 class="mt-2 mb-0">@Model.TotalAdministradores</h3>
+                    <p class="text-muted mb-0">Administradores</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-badge fs-1 text-info"></i>
+                    <h3 class="mt-2 mb-0">@Model.TotalProfesores</h3>
+                    <p class="text-muted mb-0">Profesores</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de herramientas: Búsqueda y filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form asp-action="Index" method="get" id="filtrosForm">
+                <div class="row g-3">
+                    <!-- Búsqueda -->
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text"
+                                   class="form-control"
+                                   name="busqueda"
+                                   id="busquedaTexto"
+                                   placeholder="Buscar por nombre, DNI o email..."
+                                   value="@Model.BusquedaTexto">
+                        </div>
+                    </div>
+
+                    <!-- Filtro por Rol -->
+                    <div class="col-md-3">
+                        <select class="form-select" name="filtroRol" id="filtroRol">
+                            <option value="">Todos los roles</option>
+                            @foreach (var rol in Model.RolesDisponibles)
+                            {
+                                <option value="@rol.IdRol" selected="@(Model.FiltroRol == rol.IdRol)">
+                                    @rol.NombreRol
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Filtro por Estado -->
+                    <div class="col-md-2">
+                        <select class="form-select" name="filtroEstado" id="filtroEstado">
+                            <option value="">Todos los estados</option>
+                            <option value="true" selected="@(Model.FiltroEstado == true)">Activos</option>
+                            <option value="false" selected="@(Model.FiltroEstado == false)">Inactivos</option>
+                        </select>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="bi bi-funnel"></i> Filtrar
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Limpiar
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Botón crear nuevo -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <a asp-action="Crear" class="btn btn-success">
+                            <i class="bi bi-person-plus-fill"></i> Crear Nuevo Usuario
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de usuarios -->
+    <div class="card">
+        <div class="card-body">
+            @if (Model.Usuarios.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Usuario</th>
+                                <th>DNI</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Área</th>
+                                <th>Rol</th>
+                                <th>Estado</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var usuario in Model.Usuarios)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle bg-primary text-white me-2">
+                                                @usuario.Nombres.Substring(0, 1)@usuario.Apellidos.Substring(0, 1)
+                                            </div>
+                                            <div>
+                                                <strong>@usuario.NombreCompleto</strong>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>@usuario.DNI</td>
+                                    <td>
+                                        <small>@usuario.Email</small>
+                                    </td>
+                                    <td>@usuario.Telefono</td>
+                                    <td>
+                                        <small class="text-muted">@usuario.Area</small>
+                                    </td>
+                                    <td>
+                                        @if (usuario.Rol == "Administrador")
+                                        {
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-shield-fill-check"></i> @usuario.Rol
+                                            </span>
+                                        }
+                                        else if (usuario.Rol == "Profesor")
+                                        {
+                                            <span class="badge bg-info">
+                                                <i class="bi bi-person-badge"></i> @usuario.Rol
+                                            </span>
+                                        }
+                                        else if (usuario.Rol == "Colaborador")
+                                        {
+                                            <span class="badge bg-warning">
+                                                <i class="bi bi-person-check"></i> @usuario.Rol
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                <i class="bi bi-person"></i> @usuario.Rol
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (usuario.Estado)
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Activo
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                <i class="bi bi-x-circle"></i> Inactivo
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <!-- Ver detalle -->
+                                            <a asp-action="Detalle"
+                                               asp-route-id="@usuario.IdUsuario"
+                                               class="btn btn-sm btn-outline-info"
+                                               title="Ver detalle">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+
+                                            <!-- Editar -->
+                                            <a asp-action="Editar"
+                                               asp-route-id="@usuario.IdUsuario"
+                                               class="btn btn-sm btn-outline-primary"
+                                               title="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+
+                                            <!-- Cambiar contraseña -->
+                                            <a asp-action="CambiarPassword"
+                                               asp-route-id="@usuario.IdUsuario"
+                                               class="btn btn-sm btn-outline-warning"
+                                               title="Cambiar contraseña">
+                                                <i class="bi bi-key"></i>
+                                            </a>
+
+                                            <!-- Toggle estado -->
+                                            @if (!usuario.EsUsuarioActual)
+                                            {
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-secondary btn-toggle-estado"
+                                                        data-id="@usuario.IdUsuario"
+                                                        data-estado="@usuario.Estado"
+                                                        title="@(usuario.Estado ? "Desactivar" : "Activar")">
+                                                    <i class="bi @(usuario.Estado ? "bi-toggle-on" : "bi-toggle-off")"></i>
+                                                </button>
+                                            }
+
+                                            <!-- Eliminar -->
+                                            @if (!usuario.EsUsuarioActual)
+                                            {
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-danger btn-eliminar"
+                                                        data-id="@usuario.IdUsuario"
+                                                        data-nombre="@usuario.NombreCompleto"
+                                                        title="Eliminar">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginación -->
+                @if (Model.TotalPaginas > 1)
+                {
+                    <nav aria-label="Paginación de usuarios" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <!-- Primera página -->
+                            <li class="page-item @(Model.PaginaActual == 1 ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-busqueda="@Model.BusquedaTexto"
+                                   asp-route-filtroRol="@Model.FiltroRol"
+                                   asp-route-filtroEstado="@Model.FiltroEstado"
+                                   asp-route-orden="@Model.OrdenActual"
+                                   asp-route-pagina="1">
+                                    <i class="bi bi-chevron-double-left"></i>
+                                </a>
+                            </li>
+
+                            <!-- Anterior -->
+                            <li class="page-item @(Model.PaginaActual == 1 ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-busqueda="@Model.BusquedaTexto"
+                                   asp-route-filtroRol="@Model.FiltroRol"
+                                   asp-route-filtroEstado="@Model.FiltroEstado"
+                                   asp-route-orden="@Model.OrdenActual"
+                                   asp-route-pagina="@(Model.PaginaActual - 1)">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+
+                            <!-- Páginas -->
+                            @{
+                                int inicio = Math.Max(1, Model.PaginaActual - 2);
+                                int fin = Math.Min(Model.TotalPaginas, Model.PaginaActual + 2);
+
+                                for (int i = inicio; i <= fin; i++)
+                                {
+                                    <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
+                                        <a class="page-link"
+                                           asp-action="Index"
+                                           asp-route-busqueda="@Model.BusquedaTexto"
+                                           asp-route-filtroRol="@Model.FiltroRol"
+                                           asp-route-filtroEstado="@Model.FiltroEstado"
+                                           asp-route-orden="@Model.OrdenActual"
+                                           asp-route-pagina="@i">
+                                            @i
+                                        </a>
+                                    </li>
+                                }
+                            }
+
+                            <!-- Siguiente -->
+                            <li class="page-item @(Model.PaginaActual == Model.TotalPaginas ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-busqueda="@Model.BusquedaTexto"
+                                   asp-route-filtroRol="@Model.FiltroRol"
+                                   asp-route-filtroEstado="@Model.FiltroEstado"
+                                   asp-route-orden="@Model.OrdenActual"
+                                   asp-route-pagina="@(Model.PaginaActual + 1)">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+
+                            <!-- Última página -->
+                            <li class="page-item @(Model.PaginaActual == Model.TotalPaginas ? "disabled" : "")">
+                                <a class="page-link"
+                                   asp-action="Index"
+                                   asp-route-busqueda="@Model.BusquedaTexto"
+                                   asp-route-filtroRol="@Model.FiltroRol"
+                                   asp-route-filtroEstado="@Model.FiltroEstado"
+                                   asp-route-orden="@Model.OrdenActual"
+                                   asp-route-pagina="@Model.TotalPaginas">
+                                    <i class="bi bi-chevron-double-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                        <p class="text-center text-muted">
+                            Mostrando página @Model.PaginaActual de @Model.TotalPaginas
+                            (@Model.TotalUsuarios usuarios en total)
+                        </p>
+                    </nav>
+                }
+            }
+            else
+            {
+                <div class="alert alert-info text-center" role="alert">
+                    <i class="bi bi-info-circle fs-2"></i>
+                    <p class="mb-0 mt-2">No se encontraron usuarios con los filtros aplicados.</p>
+                    <a asp-action="Index" class="btn btn-outline-primary mt-3">
+                        <i class="bi bi-arrow-clockwise"></i> Ver todos los usuarios
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalEliminarLabel">
+                    <i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de que desea eliminar al usuario?</p>
+                <p><strong id="nombreUsuarioEliminar"></strong></p>
+                <p class="text-muted">
+                    <i class="bi bi-info-circle"></i>
+                    Esta acción marcará al usuario como eliminado pero no borrará sus datos del sistema.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-danger" id="btnConfirmarEliminar">
+                    <i class="bi bi-trash"></i> Eliminar Usuario
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .avatar-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+
+        .btn-group .btn {
+            padding: 0.25rem 0.5rem;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            let idUsuarioEliminar = 0;
+
+            // ============================================
+            // Toggle Estado (Activar/Desactivar)
+            // ============================================
+            $('.btn-toggle-estado').on('click', function() {
+                const btn = $(this);
+                const idUsuario = btn.data('id');
+                const estadoActual = btn.data('estado');
+                const accion = estadoActual ? 'desactivar' : 'activar';
+
+                if (!confirm(`¿Está seguro de que desea ${accion} este usuario?`)) {
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("CambiarEstado", "AdminUsuarios")',
+                    type: 'POST',
+                    data: {
+                        id: idUsuario,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Recargar la página para reflejar cambios
+                            location.reload();
+                        } else {
+                            alert('Error: ' + response.mensaje);
+                        }
+                    },
+                    error: function() {
+                        alert('Ocurrió un error al cambiar el estado del usuario.');
+                    }
+                });
+            });
+
+            // ============================================
+            // Eliminar Usuario (mostrar modal)
+            // ============================================
+            $('.btn-eliminar').on('click', function() {
+                idUsuarioEliminar = $(this).data('id');
+                const nombreUsuario = $(this).data('nombre');
+
+                $('#nombreUsuarioEliminar').text(nombreUsuario);
+                $('#modalEliminar').modal('show');
+            });
+
+            // ============================================
+            // Confirmar Eliminación
+            // ============================================
+            $('#btnConfirmarEliminar').on('click', function() {
+                $.ajax({
+                    url: '@Url.Action("Eliminar", "AdminUsuarios")',
+                    type: 'POST',
+                    data: {
+                        id: idUsuarioEliminar,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $('#modalEliminar').modal('hide');
+                            // Recargar la página
+                            location.reload();
+                        } else {
+                            $('#modalEliminar').modal('hide');
+                            alert('Error: ' + response.mensaje);
+                        }
+                    },
+                    error: function() {
+                        $('#modalEliminar').modal('hide');
+                        alert('Ocurrió un error al eliminar el usuario.');
+                    }
+                });
+            });
+
+            // ============================================
+            // Búsqueda en tiempo real (opcional)
+            // ============================================
+            let timeoutBusqueda;
+            $('#busquedaTexto').on('keyup', function() {
+                clearTimeout(timeoutBusqueda);
+                timeoutBusqueda = setTimeout(function() {
+                    $('#filtrosForm').submit();
+                }, 500); // Esperar 500ms después de que el usuario deje de escribir
+            });
+
+            // ============================================
+            // Auto-submit al cambiar filtros
+            // ============================================
+            $('#filtroRol, #filtroEstado').on('change', function() {
+                $('#filtrosForm').submit();
+            });
+        });
+    </script>
+}
+
+@* Anti-forgery token para AJAX requests *@
+<form style="display:none;">
+    @Html.AntiForgeryToken()
+</form>

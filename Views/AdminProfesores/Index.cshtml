@@ -1,0 +1,311 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.ProfesoresIndexViewModel
+
+@{
+    ViewData["Title"] = "Gestión de Profesores";
+}
+
+<div class="container-fluid py-4">
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-person-workspace"></i> Gestión de Profesores</h2>
+            <p class="text-muted mb-0">Administra profesores y sus asignaciones de cursos</p>
+        </div>
+        <div>
+            <a asp-controller="AdminCursos" asp-action="Index" class="btn btn-outline-primary">
+                <i class="bi bi-book"></i> Ver Cursos
+            </a>
+        </div>
+    </div>
+
+    <!-- Estadísticas Generales -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">@Model.TotalProfesores</h3>
+                    <p class="mb-0"><i class="bi bi-people"></i> Total Profesores</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">@Model.ProfesoresActivos</h3>
+                    <p class="mb-0"><i class="bi bi-person-check"></i> Activos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h3 class="mb-0">@Model.ProfesoresConCursos</h3>
+                    <p class="mb-0"><i class="bi bi-bookmark-check"></i> Con Cursos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h3 class="mb-0">@Model.ProfesoresSinCursos</h3>
+                    <p class="mb-0"><i class="bi bi-bookmark-x"></i> Sin Cursos</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros y Búsqueda -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3">
+                <!-- Búsqueda -->
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" name="busqueda" class="form-control"
+                               placeholder="Buscar por nombre, apellido o email..."
+                               value="@Model.BusquedaTexto">
+                    </div>
+                </div>
+
+                <!-- Filtro Estado -->
+                <div class="col-md-2">
+                    <select name="soloActivos" class="form-select">
+                        <option value="">Todos los estados</option>
+                        <option value="true" selected="@(Model.SoloActivos == true)">Solo Activos</option>
+                        <option value="false" selected="@(Model.SoloActivos == false)">Solo Inactivos</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Cursos -->
+                <div class="col-md-2">
+                    <select name="soloConCursos" class="form-select">
+                        <option value="">Con y sin cursos</option>
+                        <option value="true" selected="@(Model.SoloConCursos == true)">Con cursos</option>
+                        <option value="false" selected="@(Model.SoloConCursos == false)">Sin cursos</option>
+                    </select>
+                </div>
+
+                <!-- Filtro Área -->
+                <div class="col-md-2">
+                    <select name="area" class="form-select">
+                        <option value="">Todas las áreas</option>
+                        @foreach (var areaItem in Model.AreasDisponibles)
+                        {
+                            <option value="@areaItem" selected="@(Model.FiltroArea == areaItem)">@areaItem</option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Ordenamiento -->
+                <div class="col-md-2">
+                    <select name="orden" class="form-select">
+                        <option value="nombre" selected="@(Model.Ordenamiento == "nombre")">Por nombre</option>
+                        <option value="cursos" selected="@(Model.Ordenamiento == "cursos")">Por cursos</option>
+                        <option value="area" selected="@(Model.Ordenamiento == "area")">Por área</option>
+                    </select>
+                </div>
+
+                <!-- Botones -->
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-filter"></i> Aplicar Filtros
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Limpiar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.Profesores.Any())
+    {
+        <!-- Lista de Profesores -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4 mb-4">
+            @foreach (var profesor in Model.Profesores)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm @(profesor.Estado ? "" : "border-secondary")">
+                        <!-- Header con estado -->
+                        <div class="card-header @(profesor.Estado ? "bg-success" : "bg-secondary") text-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-person-badge"></i> Profesor</span>
+                                <span class="badge @(profesor.Estado ? "bg-light text-success" : "bg-dark")">
+                                    @(profesor.Estado ? "Activo" : "Inactivo")
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <!-- Nombre -->
+                            <h5 class="card-title mb-3">@profesor.Nombres @profesor.Apellidos</h5>
+
+                            <!-- Información -->
+                            <div class="mb-3">
+                                <p class="mb-1 small">
+                                    <i class="bi bi-envelope"></i> @profesor.Email
+                                </p>
+                                <p class="mb-1 small">
+                                    <i class="bi bi-telephone"></i> @profesor.Telefono
+                                </p>
+                                <p class="mb-1">
+                                    <span class="badge bg-info">@profesor.Area</span>
+                                </p>
+                            </div>
+
+                            <!-- Estadísticas de cursos -->
+                            <div class="border-top pt-3 mb-3">
+                                <div class="row text-center small">
+                                    <div class="col-4">
+                                        <div class="fw-bold text-primary">@profesor.TotalCursosAsignados</div>
+                                        <div class="text-muted">Total</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="fw-bold text-success">@profesor.CursosActivos</div>
+                                        <div class="text-muted">Activos</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="fw-bold text-secondary">@profesor.CursosFinalizados</div>
+                                        <div class="text-muted">Finalizados</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Carga de trabajo -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <small class="text-muted">Carga de trabajo:</small>
+                                    <small class="fw-bold">@profesor.HorasCargaTrabajo horas</small>
+                                </div>
+                                @{
+                                    var porcentajeCarga = Math.Min((profesor.HorasCargaTrabajo / 120.0) * 100, 100);
+                                    var colorBarra = porcentajeCarga > 80 ? "bg-danger" : (porcentajeCarga > 60 ? "bg-warning" : "bg-success");
+                                }
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar @colorBarra" role="progressbar"
+                                         style="width: @porcentajeCarga%"
+                                         aria-valuenow="@profesor.HorasCargaTrabajo"
+                                         aria-valuemin="0"
+                                         aria-valuemax="120"></div>
+                                </div>
+                                @if (profesor.HorasCargaTrabajo > 120)
+                                {
+                                    <small class="text-danger">⚠️ Sobrecargado</small>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Acciones -->
+                        <div class="card-footer bg-transparent">
+                            <div class="d-grid gap-2">
+                                <a asp-action="Cursos" asp-route-id="@profesor.IdUsuario"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-book"></i> Ver Cursos (@profesor.TotalCursosAsignados)
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Paginación -->
+        @if (Model.TotalPaginas > 1)
+        {
+            <nav aria-label="Paginación de profesores">
+                <ul class="pagination justify-content-center">
+                    <!-- Primera página -->
+                    <li class="page-item @(Model.PaginaActual == 1 ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-busqueda="@Model.BusquedaTexto"
+                           asp-route-soloActivos="@Model.SoloActivos"
+                           asp-route-soloConCursos="@Model.SoloConCursos"
+                           asp-route-area="@Model.FiltroArea"
+                           asp-route-orden="@Model.Ordenamiento"
+                           asp-route-pagina="1">
+                            «
+                        </a>
+                    </li>
+
+                    <!-- Anterior -->
+                    <li class="page-item @(Model.PaginaActual == 1 ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-busqueda="@Model.BusquedaTexto"
+                           asp-route-soloActivos="@Model.SoloActivos"
+                           asp-route-soloConCursos="@Model.SoloConCursos"
+                           asp-route-area="@Model.FiltroArea"
+                           asp-route-orden="@Model.Ordenamiento"
+                           asp-route-pagina="@(Model.PaginaActual - 1)">
+                            ‹
+                        </a>
+                    </li>
+
+                    <!-- Páginas -->
+                    @for (int i = Math.Max(1, Model.PaginaActual - 2); i <= Math.Min(Model.TotalPaginas, Model.PaginaActual + 2); i++)
+                    {
+                        <li class="page-item @(i == Model.PaginaActual ? "active" : "")">
+                            <a class="page-link" asp-action="Index"
+                               asp-route-busqueda="@Model.BusquedaTexto"
+                               asp-route-soloActivos="@Model.SoloActivos"
+                               asp-route-soloConCursos="@Model.SoloConCursos"
+                               asp-route-area="@Model.FiltroArea"
+                               asp-route-orden="@Model.Ordenamiento"
+                               asp-route-pagina="@i">
+                                @i
+                            </a>
+                        </li>
+                    }
+
+                    <!-- Siguiente -->
+                    <li class="page-item @(Model.PaginaActual == Model.TotalPaginas ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-busqueda="@Model.BusquedaTexto"
+                           asp-route-soloActivos="@Model.SoloActivos"
+                           asp-route-soloConCursos="@Model.SoloConCursos"
+                           asp-route-area="@Model.FiltroArea"
+                           asp-route-orden="@Model.Ordenamiento"
+                           asp-route-pagina="@(Model.PaginaActual + 1)">
+                            ›
+                        </a>
+                    </li>
+
+                    <!-- Última página -->
+                    <li class="page-item @(Model.PaginaActual == Model.TotalPaginas ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-busqueda="@Model.BusquedaTexto"
+                           asp-route-soloActivos="@Model.SoloActivos"
+                           asp-route-soloConCursos="@Model.SoloConCursos"
+                           asp-route-area="@Model.FiltroArea"
+                           asp-route-orden="@Model.Ordenamiento"
+                           asp-route-pagina="@Model.TotalPaginas">
+                            »
+                        </a>
+                    </li>
+                </ul>
+                <p class="text-center text-muted">
+                    Página @Model.PaginaActual de @Model.TotalPaginas
+                    (@Model.TotalProfesores profesores en total)
+                </p>
+            </nav>
+        }
+    }
+    else
+    {
+        <!-- Sin resultados -->
+        <div class="alert alert-info text-center" role="alert">
+            <i class="bi bi-info-circle fs-1"></i>
+            <h4 class="mt-3">No se encontraron profesores</h4>
+            <p class="mb-0">
+                @if (!string.IsNullOrWhiteSpace(Model.BusquedaTexto) || Model.SoloActivos.HasValue || Model.SoloConCursos.HasValue || !string.IsNullOrWhiteSpace(Model.FiltroArea))
+                {
+                    <text>Intenta ajustar los filtros de búsqueda.</text>
+                }
+                else
+                {
+                    <text>No hay profesores registrados en el sistema.</text>
+                }
+            </p>
+        </div>
+    }
+</div>

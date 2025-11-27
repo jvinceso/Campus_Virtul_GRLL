@@ -1,0 +1,186 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.ProfesorCursosViewModel
+
+@{
+    ViewData["Title"] = "Mi Dashboard";
+}
+
+<div class="container-fluid py-4">
+    <!-- Encabezado -->
+    <div class="mb-4">
+        <h2><i class="bi bi-house-door"></i> Bienvenido, @Model.NombreCompleto</h2>
+        <p class="text-muted mb-0">Panel de control de profesor - Área: <strong>@Model.Area</strong></p>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white shadow">
+                <div class="card-body text-center">
+                    <i class="bi bi-book fs-1"></i>
+                    <h3 class="mt-2 mb-0">@Model.TotalCursosAsignados</h3>
+                    <p class="mb-0">Total Cursos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white shadow">
+                <div class="card-body text-center">
+                    <i class="bi bi-play-circle fs-1"></i>
+                    <h3 class="mt-2 mb-0">@Model.CursosActivos</h3>
+                    <p class="mb-0">Cursos Activos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white shadow">
+                <div class="card-body text-center">
+                    <i class="bi bi-hourglass-split fs-1"></i>
+                    <h3 class="mt-2 mb-0">@Model.CursosEnCurso</h3>
+                    <p class="mb-0">En Curso</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white shadow">
+                <div class="card-body text-center">
+                    <i class="bi bi-clock fs-1"></i>
+                    <h3 class="mt-2 mb-0">@Model.HorasTotales</h3>
+                    <p class="mb-0">Horas Totales</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carga de Trabajo -->
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="bi bi-speedometer2"></i> Carga de Trabajo</h5>
+        </div>
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold">Carga Actual</span>
+                <span class="fw-bold">@Model.HorasTotales / 120 horas</span>
+            </div>
+            @{
+                var porcentajeCarga = Math.Min((Model.HorasTotales / 120.0) * 100, 100);
+                var colorBarra = porcentajeCarga > 80 ? "bg-danger" : (porcentajeCarga > 60 ? "bg-warning" : "bg-success");
+                var estadoCarga = porcentajeCarga > 100 ? "Sobrecargado" : (porcentajeCarga > 80 ? "Carga alta" : (porcentajeCarga > 60 ? "Carga moderada" : "Carga baja"));
+            }
+            <div class="progress" style="height: 30px;">
+                <div class="progress-bar @colorBarra progress-bar-striped progress-bar-animated" role="progressbar"
+                     style="width: @porcentajeCarga%"
+                     aria-valuenow="@Model.HorasTotales"
+                     aria-valuemin="0"
+                     aria-valuemax="120">
+                    @porcentajeCarga.ToString("F0")%
+                </div>
+            </div>
+            <div class="mt-2">
+                <small class="text-muted">Estado: <strong class="@(porcentajeCarga > 80 ? "text-danger" : "")">@estadoCarga</strong></small>
+            </div>
+            @if (Model.HorasTotales > 120)
+            {
+                <div class="alert alert-warning mt-3 mb-0">
+                    <i class="bi bi-exclamation-triangle"></i> <strong>Atención:</strong> Su carga de trabajo supera las 120 horas recomendadas.
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Acciones Rápidas -->
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="bi bi-lightning"></i> Acciones Rápidas</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <a asp-action="MisCursos" class="btn btn-outline-primary w-100 py-3">
+                        <i class="bi bi-book fs-4 d-block mb-2"></i>
+                        Ver Todos Mis Cursos
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a asp-action="MisCursos" asp-route-estado="@Campus_Virtul_GRLL.Models.Enums.EstadoCurso.EnCurso"
+                       class="btn btn-outline-success w-100 py-3">
+                        <i class="bi bi-play-circle fs-4 d-block mb-2"></i>
+                        Cursos En Curso
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a asp-action="MisCursos" asp-route-estado="@Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Publicado"
+                       class="btn btn-outline-info w-100 py-3">
+                        <i class="bi bi-calendar-event fs-4 d-block mb-2"></i>
+                        Cursos Publicados
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mis Cursos Recientes -->
+    <div class="card shadow">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-clock-history"></i> Mis Cursos Recientes</h5>
+            <a asp-action="MisCursos" class="btn btn-sm btn-primary">
+                Ver Todos <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        <div class="card-body">
+            @if (Model.Cursos.Any())
+            {
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    @foreach (var curso in Model.Cursos.Take(6))
+                    {
+                        var estadoColor = curso.Estado switch
+                        {
+                            Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Borrador => "secondary",
+                            Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Publicado => "primary",
+                            Campus_Virtul_GRLL.Models.Enums.EstadoCurso.EnCurso => "success",
+                            Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Finalizado => "dark",
+                            Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Cancelado => "danger",
+                            _ => "secondary"
+                        };
+
+                        <div class="col">
+                            <div class="card h-100 border-@estadoColor">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <span class="badge bg-@estadoColor">@curso.Estado</span>
+                                        <small class="text-muted">@curso.Codigo</small>
+                                    </div>
+                                    <h6 class="card-title">@curso.Titulo</h6>
+                                    <div class="small mb-2">
+                                        <span class="badge bg-info">@curso.Categoria</span>
+                                        <span class="badge bg-secondary">@curso.Nivel</span>
+                                    </div>
+                                    <p class="small mb-2">
+                                        <i class="bi bi-clock"></i> @curso.Duracion horas
+                                        <i class="bi bi-people ms-2"></i> @curso.CapacidadMaxima alumnos
+                                    </p>
+                                    @if (curso.FechaInicio.HasValue)
+                                    {
+                                        <p class="small text-muted mb-2">
+                                            <i class="bi bi-calendar-event"></i> Inicio: @curso.FechaInicio.Value.ToString("dd/MM/yyyy")
+                                        </p>
+                                    }
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <a asp-action="VerCurso" asp-route-id="@curso.Id" class="btn btn-sm btn-outline-primary w-100">
+                                        <i class="bi bi-eye"></i> Ver Detalle
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info mb-0" role="alert">
+                    <i class="bi bi-info-circle"></i> No tiene cursos asignados actualmente.
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,320 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.ProfesorCursosViewModel
+
+@{
+    ViewData["Title"] = $"Cursos de {Model.NombreCompleto}";
+}
+
+<div class="container-fluid py-4">
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="bi bi-person-badge"></i> Cursos del Profesor</h2>
+            <p class="text-muted mb-0">@Model.NombreCompleto</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver a Profesores
+        </a>
+    </div>
+
+    <!-- Información del Profesor -->
+    <div class="card mb-4 @(Model.Estado ? "border-success" : "border-secondary")">
+        <div class="card-header @(Model.Estado ? "bg-success" : "bg-secondary") text-white">
+            <h5 class="mb-0"><i class="bi bi-info-circle"></i> Información del Profesor</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <p class="mb-2"><strong>Nombre:</strong></p>
+                    <p>@Model.NombreCompleto</p>
+                </div>
+                <div class="col-md-3">
+                    <p class="mb-2"><strong>Email:</strong></p>
+                    <p>@Model.Email</p>
+                </div>
+                <div class="col-md-2">
+                    <p class="mb-2"><strong>Área:</strong></p>
+                    <p><span class="badge bg-info">@Model.Area</span></p>
+                </div>
+                <div class="col-md-2">
+                    <p class="mb-2"><strong>Teléfono:</strong></p>
+                    <p>@Model.Telefono</p>
+                </div>
+                <div class="col-md-2">
+                    <p class="mb-2"><strong>Estado:</strong></p>
+                    <p>
+                        <span class="badge @(Model.Estado ? "bg-success" : "bg-secondary")">
+                            @(Model.Estado ? "Activo" : "Inactivo")
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas de Cursos -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">@Model.TotalCursosAsignados</h3>
+                    <p class="mb-0"><i class="bi bi-book"></i> Total Cursos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">@Model.CursosActivos</h3>
+                    <p class="mb-0"><i class="bi bi-play-circle"></i> Activos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">@Model.CursosEnCurso</h3>
+                    <p class="mb-0"><i class="bi bi-hourglass-split"></i> En Curso</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">@Model.HorasTotales</h3>
+                    <p class="mb-0"><i class="bi bi-clock"></i> Horas Totales</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Carga de Trabajo -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0">Carga de Trabajo Actual</h6>
+                <span class="fw-bold">@Model.HorasTotales / 120 horas</span>
+            </div>
+            @{
+                var porcentajeCarga = Math.Min((Model.HorasTotales / 120.0) * 100, 100);
+                var colorBarra = porcentajeCarga > 80 ? "bg-danger" : (porcentajeCarga > 60 ? "bg-warning" : "bg-success");
+                var estadoCarga = porcentajeCarga > 100 ? "Sobrecargado" : (porcentajeCarga > 80 ? "Carga alta" : (porcentajeCarga > 60 ? "Carga moderada" : "Carga baja"));
+            }
+            <div class="progress" style="height: 25px;">
+                <div class="progress-bar @colorBarra progress-bar-striped" role="progressbar"
+                     style="width: @porcentajeCarga%"
+                     aria-valuenow="@Model.HorasTotales"
+                     aria-valuemin="0"
+                     aria-valuemax="120">
+                    @porcentajeCarga.ToString("F0")%
+                </div>
+            </div>
+            <small class="text-muted">Estado: <strong>@estadoCarga</strong></small>
+            @if (Model.HorasTotales > 120)
+            {
+                <div class="alert alert-warning mt-2 mb-0">
+                    <i class="bi bi-exclamation-triangle"></i> Este profesor tiene una carga de trabajo superior a 120 horas.
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" asp-action="Cursos" class="row g-3">
+                <input type="hidden" name="id" value="@Model.ProfesorId" />
+
+                <div class="col-md-4">
+                    <label class="form-label">Estado del Curso</label>
+                    <select name="estado" class="form-select">
+                        <option value="">Todos los estados</option>
+                        @foreach (var estadoValue in Enum.GetValues<Campus_Virtul_GRLL.Models.Enums.EstadoCurso>())
+                        {
+                            <option value="@((int)estadoValue)" selected="@(Model.FiltroEstado == estadoValue)">
+                                @estadoValue.ToString()
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Ordenar por</label>
+                    <select name="orden" class="form-select">
+                        <option value="recientes" selected="@(Model.Ordenamiento == "recientes" || string.IsNullOrEmpty(Model.Ordenamiento))">Más recientes</option>
+                        <option value="inicio" selected="@(Model.Ordenamiento == "inicio")">Fecha de inicio</option>
+                        <option value="estado" selected="@(Model.Ordenamiento == "estado")">Estado</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="bi bi-filter"></i> Aplicar
+                    </button>
+                    <a asp-action="Cursos" asp-route-id="@Model.ProfesorId" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Limpiar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.Cursos.Any())
+    {
+        <!-- Lista de Cursos -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var curso in Model.Cursos)
+            {
+                var estadoColor = curso.Estado switch
+                {
+                    Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Borrador => "secondary",
+                    Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Publicado => "primary",
+                    Campus_Virtul_GRLL.Models.Enums.EstadoCurso.EnCurso => "success",
+                    Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Finalizado => "dark",
+                    Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Cancelado => "danger",
+                    _ => "secondary"
+                };
+
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <!-- Header con estado -->
+                        <div class="card-header bg-@estadoColor text-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><strong>@curso.Codigo</strong></span>
+                                <span class="badge bg-light text-@estadoColor">@curso.Estado</span>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <!-- Título -->
+                            <h5 class="card-title mb-3">@curso.Titulo</h5>
+
+                            <!-- Información básica -->
+                            <div class="mb-3">
+                                <p class="mb-2">
+                                    <span class="badge bg-info">@curso.Categoria</span>
+                                    <span class="badge bg-secondary">@curso.Nivel</span>
+                                    <span class="badge bg-primary">@curso.Modalidad</span>
+                                </p>
+                            </div>
+
+                            <!-- Detalles -->
+                            <div class="small mb-3">
+                                <p class="mb-1">
+                                    <i class="bi bi-clock"></i> Duración: <strong>@curso.Duracion horas</strong>
+                                </p>
+                                <p class="mb-1">
+                                    <i class="bi bi-people"></i> Capacidad: <strong>@curso.CapacidadMaxima alumnos</strong>
+                                </p>
+                                @if (curso.FechaInicio.HasValue)
+                                {
+                                    <p class="mb-1">
+                                        <i class="bi bi-calendar-event"></i> Inicio: <strong>@curso.FechaInicio.Value.ToString("dd/MM/yyyy")</strong>
+                                    </p>
+                                }
+                                @if (curso.FechaFin.HasValue)
+                                {
+                                    <p class="mb-1">
+                                        <i class="bi bi-calendar-check"></i> Fin: <strong>@curso.FechaFin.Value.ToString("dd/MM/yyyy")</strong>
+                                    </p>
+                                }
+                            </div>
+
+                            <!-- Fecha de asignación -->
+                            @if (curso.FechaAsignacion.HasValue)
+                            {
+                                <div class="border-top pt-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar-plus"></i> Asignado: @curso.FechaAsignacion.Value.ToString("dd/MM/yyyy")
+                                    </small>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Acciones -->
+                        <div class="card-footer bg-transparent">
+                            <div class="d-flex gap-2">
+                                <a asp-controller="AdminCursos" asp-action="Detalle" asp-route-id="@curso.Id"
+                                   class="btn btn-sm btn-outline-primary flex-fill">
+                                    <i class="bi bi-eye"></i> Ver Detalle
+                                </a>
+                                @if (Model.EsVistaAdmin)
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                            onclick="confirmarDesasignacion(@curso.Id, '@curso.Titulo')"
+                                            title="Desasignar profesor">
+                                        <i class="bi bi-person-dash"></i>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- Sin cursos -->
+        <div class="alert alert-info text-center" role="alert">
+            <i class="bi bi-info-circle fs-1"></i>
+            <h4 class="mt-3">No se encontraron cursos</h4>
+            <p class="mb-0">
+                @if (Model.FiltroEstado.HasValue)
+                {
+                    <text>Este profesor no tiene cursos con el estado seleccionado.</text>
+                }
+                else
+                {
+                    <text>Este profesor aún no tiene cursos asignados.</text>
+                }
+            </p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function confirmarDesasignacion(cursoId, cursoTitulo) {
+            if (confirm(`¿Está seguro de desasignar al profesor del curso "${cursoTitulo}"?\n\nEsta acción quitará al profesor de este curso.`)) {
+                const motivo = prompt('Motivo de la desasignación (opcional):');
+
+                // Crear formulario dinámico
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '@Url.Action("DesasignarProfesor", "AdminProfesores")';
+
+                // Token antifalsificación
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value ||
+                              document.querySelector('[name="__RequestVerificationToken"]')?.value;
+
+                if (token) {
+                    const tokenInput = document.createElement('input');
+                    tokenInput.type = 'hidden';
+                    tokenInput.name = '__RequestVerificationToken';
+                    tokenInput.value = token;
+                    form.appendChild(tokenInput);
+                }
+
+                // Curso ID
+                const cursoInput = document.createElement('input');
+                cursoInput.type = 'hidden';
+                cursoInput.name = 'cursoId';
+                cursoInput.value = cursoId;
+                form.appendChild(cursoInput);
+
+                // Motivo
+                if (motivo) {
+                    const motivoInput = document.createElement('input');
+                    motivoInput.type = 'hidden';
+                    motivoInput.name = 'motivo';
+                    motivoInput.value = motivo;
+                    form.appendChild(motivoInput);
+                }
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+    @Html.AntiForgeryToken()
+}

@@ -1,0 +1,110 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.CursoCardViewModel
+
+@{
+    // Configurar colores según el estado
+    var estadoClass = Model.Estado switch
+    {
+        Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Borrador => "bg-secondary",
+        Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Publicado => "bg-primary",
+        Campus_Virtul_GRLL.Models.Enums.EstadoCurso.EnCurso => "bg-success",
+        Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Finalizado => "bg-warning",
+        Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Cancelado => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    var nivelClass = Model.Nivel switch
+    {
+        Campus_Virtul_GRLL.Models.Enums.NivelCurso.Basico => "bg-info",
+        Campus_Virtul_GRLL.Models.Enums.NivelCurso.Intermedio => "bg-primary",
+        Campus_Virtul_GRLL.Models.Enums.NivelCurso.Avanzado => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    var modalidadIcono = Model.Modalidad switch
+    {
+        Campus_Virtul_GRLL.Models.Enums.Modalidad.Presencial => "🏢",
+        Campus_Virtul_GRLL.Models.Enums.Modalidad.Virtual => "💻",
+        Campus_Virtul_GRLL.Models.Enums.Modalidad.Hibrido => "🔄",
+        _ => "📚"
+    };
+
+    var imagenUrl = string.IsNullOrWhiteSpace(Model.ImagenUrl)
+        ? "https://placehold.co/400x250?text=Sin+Imagen"
+        : Model.ImagenUrl;
+}
+
+<div class="card h-100 shadow-sm curso-card">
+    <!-- Imagen del curso -->
+    <img src="@imagenUrl" class="card-img-top" alt="@Model.Titulo" style="height: 180px; object-fit: cover;">
+
+    <div class="card-body d-flex flex-column">
+        <!-- Badges superiores -->
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="badge @estadoClass">@Model.Estado</span>
+            <span class="badge @nivelClass">@Model.Nivel</span>
+        </div>
+
+        <!-- Código del curso -->
+        <small class="text-muted mb-1">@Model.Codigo</small>
+
+        <!-- Título del curso -->
+        <h5 class="card-title mb-2" title="@Model.Titulo">
+            @(Model.Titulo.Length > 50 ? Model.Titulo.Substring(0, 47) + "..." : Model.Titulo)
+        </h5>
+
+        <!-- Categoría -->
+        <p class="card-text mb-2">
+            <span class="badge bg-light text-dark border">
+                <i class="bi bi-tag"></i> @Model.Categoria
+            </span>
+        </p>
+
+        <!-- Información adicional -->
+        <div class="mb-3 small text-muted">
+            <div class="mb-1">
+                <span>@modalidadIcono @Model.Modalidad</span>
+            </div>
+            <div class="mb-1">
+                <i class="bi bi-clock"></i> @Model.Duracion horas
+            </div>
+            <div class="mb-1">
+                <i class="bi bi-people"></i> Capacidad: @Model.CapacidadMaxima personas
+            </div>
+            @if (Model.FechaInicio.HasValue)
+            {
+                <div class="mb-1">
+                    <i class="bi bi-calendar"></i> Inicio: @Model.FechaInicio.Value.ToString("dd/MM/yyyy")
+                </div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.NombreProfesor))
+            {
+                <div class="mb-1">
+                    <i class="bi bi-person-badge"></i> @Model.NombreProfesor
+                </div>
+            }
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="mt-auto">
+            <div class="btn-group w-100" role="group">
+                <a asp-action="Detalle" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-eye"></i> Ver
+                </a>
+                <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .curso-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .curso-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2) !important;
+    }
+</style>

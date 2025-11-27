@@ -1,0 +1,442 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.DetalleUsuarioViewModel
+
+@{
+    ViewData["Title"] = "Detalle de Usuario";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="bi bi-person-lines-fill"></i> Detalle de Usuario
+                </h2>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver al listado
+                </a>
+            </div>
+
+            <div class="row">
+                <!-- Columna izquierda: Información principal -->
+                <div class="col-lg-8">
+                    <!-- Card: Información Personal -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-person-vcard"></i> Información Personal
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Nombres:</strong>
+                                    <p class="mb-0">@Model.Nombres</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Apellidos:</strong>
+                                    <p class="mb-0">@Model.Apellidos</p>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <strong class="text-muted">DNI:</strong>
+                                    <p class="mb-0">
+                                        <span class="badge bg-secondary">@Model.DNI</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Teléfono:</strong>
+                                    <p class="mb-0">
+                                        @if (!string.IsNullOrEmpty(Model.Telefono))
+                                        {
+                                            <i class="bi bi-telephone"></i> @Model.Telefono
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No especificado</span>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card: Información de Contacto -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-envelope"></i> Información de Contacto
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <strong class="text-muted">Correo Electrónico:</strong>
+                            <p class="mb-0">
+                                <i class="bi bi-envelope-at"></i>
+                                <a href="mailto:@Model.Email">@Model.Email</a>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Card: Información Laboral -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-building"></i> Información Laboral
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Área:</strong>
+                                    <p class="mb-0">
+                                        <i class="bi bi-briefcase"></i> @Model.Area
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Rol:</strong>
+                                    <p class="mb-0">
+                                        @if (Model.NombreRol == "Administrador")
+                                        {
+                                            <span class="badge bg-danger fs-6">
+                                                <i class="bi bi-shield-fill-check"></i> @Model.NombreRol
+                                            </span>
+                                        }
+                                        else if (Model.NombreRol == "Profesor")
+                                        {
+                                            <span class="badge bg-info fs-6">
+                                                <i class="bi bi-person-badge"></i> @Model.NombreRol
+                                            </span>
+                                        }
+                                        else if (Model.NombreRol == "Colaborador")
+                                        {
+                                            <span class="badge bg-warning fs-6">
+                                                <i class="bi bi-person-check"></i> @Model.NombreRol
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary fs-6">
+                                                <i class="bi bi-person"></i> @Model.NombreRol
+                                            </span>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Estadísticas adicionales -->
+                            @if (Model.NombreRol == "Profesor")
+                            {
+                                <div class="row mt-3 pt-3 border-top">
+                                    <div class="col-md-6">
+                                        <strong class="text-muted">Cursos Asignados:</strong>
+                                        <p class="mb-0">
+                                            <span class="badge bg-primary">
+                                                @(Model.CursosAsignados ?? 0)
+                                            </span>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong class="text-muted">Cursos Creados:</strong>
+                                        <p class="mb-0">
+                                            <span class="badge bg-primary">
+                                                @(Model.CursosCreados ?? 0)
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Card: Información del Sistema -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-gear"></i> Información del Sistema
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Fecha de Creación:</strong>
+                                    <p class="mb-0">
+                                        <i class="bi bi-calendar-plus"></i>
+                                        @Model.FechaCreacion.ToString("dd/MM/yyyy")
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Última Actualización:</strong>
+                                    <p class="mb-0">
+                                        <i class="bi bi-calendar-check"></i>
+                                        @Model.FechaActualizacion.ToString("dd/MM/yyyy")
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Estado:</strong>
+                                    <p class="mb-0">
+                                        @if (Model.Estado)
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Activo
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                <i class="bi bi-x-circle"></i> Inactivo
+                                            </span>
+                                        }
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <strong class="text-muted">Primer Inicio:</strong>
+                                    <p class="mb-0">
+                                        @if (Model.PrimerInicio)
+                                        {
+                                            <span class="badge bg-warning">
+                                                <i class="bi bi-exclamation-circle"></i> Pendiente cambio de contraseña
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Completado
+                                            </span>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Columna derecha: Acciones y alertas -->
+                <div class="col-lg-4">
+                    <!-- Card: Acciones Rápidas -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-lightning"></i> Acciones Rápidas
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <!-- Editar -->
+                                <a asp-action="Editar"
+                                   asp-route-id="@Model.IdUsuario"
+                                   class="btn btn-primary">
+                                    <i class="bi bi-pencil"></i> Editar Usuario
+                                </a>
+
+                                <!-- Cambiar Contraseña -->
+                                <a asp-action="CambiarPassword"
+                                   asp-route-id="@Model.IdUsuario"
+                                   class="btn btn-warning">
+                                    <i class="bi bi-key"></i> Cambiar Contraseña
+                                </a>
+
+                                <!-- Toggle Estado -->
+                                @if (Model.PuedeCambiarEstado)
+                                {
+                                    <button type="button"
+                                            class="btn @(Model.Estado ? "btn-outline-secondary" : "btn-success") btn-toggle-estado"
+                                            data-id="@Model.IdUsuario"
+                                            data-estado="@Model.Estado">
+                                        <i class="bi @(Model.Estado ? "bi-toggle-on" : "bi-toggle-off")"></i>
+                                        @(Model.Estado ? "Desactivar Usuario" : "Activar Usuario")
+                                    </button>
+                                }
+
+                                <!-- Eliminar -->
+                                @if (Model.PuedeEliminar)
+                                {
+                                    <button type="button"
+                                            class="btn btn-danger btn-eliminar"
+                                            data-id="@Model.IdUsuario"
+                                            data-nombre="@Model.NombreCompleto">
+                                        <i class="bi bi-trash"></i> Eliminar Usuario
+                                    </button>
+                                }
+                            </div>
+
+                            @if (Model.EsUsuarioActual)
+                            {
+                                <div class="alert alert-warning mt-3 mb-0" role="alert">
+                                    <i class="bi bi-shield-lock"></i>
+                                    <small>
+                                        Este es su perfil. Por seguridad, no puede eliminarse ni desactivarse.
+                                    </small>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Card: Avatar -->
+                    <div class="card shadow mb-4">
+                        <div class="card-body text-center">
+                            <div class="avatar-large bg-primary text-white mx-auto mb-3">
+                                @Model.Nombres.Substring(0, 1)@Model.Apellidos.Substring(0, 1)
+                            </div>
+                            <h4 class="mb-1">@Model.NombreCompleto</h4>
+                            <p class="text-muted mb-0">@Model.NombreRol</p>
+                        </div>
+                    </div>
+
+                    <!-- Card: Información adicional -->
+                    @if (!Model.Estado)
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Usuario Inactivo</strong><br />
+                            Este usuario no puede acceder al sistema.
+                        </div>
+                    }
+
+                    @if (Model.PrimerInicio)
+                    {
+                        <div class="alert alert-info" role="alert">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Primer Inicio Pendiente</strong><br />
+                            El usuario debe cambiar su contraseña al iniciar sesión.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalEliminarLabel">
+                    <i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de que desea eliminar al usuario?</p>
+                <p><strong id="nombreUsuarioEliminar"></strong></p>
+                <p class="text-muted">
+                    <i class="bi bi-info-circle"></i>
+                    Esta acción marcará al usuario como eliminado pero no borrará sus datos del sistema.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-danger" id="btnConfirmarEliminar">
+                    <i class="bi bi-trash"></i> Eliminar Usuario
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .avatar-large {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 48px;
+        }
+
+        .card {
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            let idUsuarioEliminar = @Model.IdUsuario;
+
+            // ============================================
+            // Toggle Estado
+            // ============================================
+            $('.btn-toggle-estado').on('click', function() {
+                const btn = $(this);
+                const idUsuario = btn.data('id');
+                const estadoActual = btn.data('estado');
+                const accion = estadoActual ? 'desactivar' : 'activar';
+
+                if (!confirm(`¿Está seguro de que desea ${accion} este usuario?`)) {
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("CambiarEstado", "AdminUsuarios")',
+                    type: 'POST',
+                    data: {
+                        id: idUsuario,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            alert('Error: ' + response.mensaje);
+                        }
+                    },
+                    error: function() {
+                        alert('Ocurrió un error al cambiar el estado del usuario.');
+                    }
+                });
+            });
+
+            // ============================================
+            // Eliminar Usuario
+            // ============================================
+            $('.btn-eliminar').on('click', function() {
+                const nombreUsuario = $(this).data('nombre');
+                $('#nombreUsuarioEliminar').text(nombreUsuario);
+                $('#modalEliminar').modal('show');
+            });
+
+            $('#btnConfirmarEliminar').on('click', function() {
+                $.ajax({
+                    url: '@Url.Action("Eliminar", "AdminUsuarios")',
+                    type: 'POST',
+                    data: {
+                        id: idUsuarioEliminar,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $('#modalEliminar').modal('hide');
+                            window.location.href = '@Url.Action("Index", "AdminUsuarios")';
+                        } else {
+                            $('#modalEliminar').modal('hide');
+                            alert('Error: ' + response.mensaje);
+                        }
+                    },
+                    error: function() {
+                        $('#modalEliminar').modal('hide');
+                        alert('Ocurrió un error al eliminar el usuario.');
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+@* Anti-forgery token para AJAX requests *@
+<form style="display:none;">
+    @Html.AntiForgeryToken()
+</form>

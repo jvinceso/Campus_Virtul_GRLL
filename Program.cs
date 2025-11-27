@@ -14,18 +14,18 @@ builder.Services.AddDbContext<AppDBContext>(options =>
 });
 
 // ============================================
-// 2. CONFIGURAR AUTENTICACI”N CON COOKIES
+// 2. CONFIGURAR AUTENTICACIÔøΩN CON COOKIES
 // ============================================
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/Login/Index"; // P·gina de login
-        options.LogoutPath = "/Login/Logout"; // Cerrar sesiÛn
+        options.LoginPath = "/Login/Index"; // PÔøΩgina de login
+        options.LogoutPath = "/Login/Logout"; // Cerrar sesiÔøΩn
         options.AccessDeniedPath = "/Login/AccesoDenegado"; // Sin permisos
-        options.ExpireTimeSpan = TimeSpan.FromSeconds(1); // Cookie v·lida por 8 horas
-        options.SlidingExpiration = true; // Renovar autom·ticamente
+        options.ExpireTimeSpan = TimeSpan.FromSeconds(1); // Cookie vÔøΩlida por 8 horas
+        options.SlidingExpiration = true; // Renovar automÔøΩticamente
         options.Cookie.Name = "CampusVirtualAuth";
-        options.Cookie.HttpOnly = true; // ProtecciÛn contra XSS
+        options.Cookie.HttpOnly = true; // ProtecciÔøΩn contra XSS
         options.Cookie.IsEssential = true; // Cookie esencial
     });
 
@@ -37,7 +37,25 @@ builder.Services.AddControllersWithViews();
 var app = builder.Build();
 
 // ============================================
-// 4. CONFIGURAR PIPELINE HTTP
+// 4. INICIALIZAR BASE DE DATOS CON DATOS SEED
+// ============================================
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDBContext>();
+        DbInitializer.Initialize(context);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "‚ùå Error al inicializar la base de datos con datos seed");
+    }
+}
+
+// ============================================
+// 5. CONFIGURAR PIPELINE HTTP
 // ============================================
 if (!app.Environment.IsDevelopment())
 {
@@ -54,7 +72,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // ============================================
-// 5. CONFIGURAR RUTAS
+// 6. CONFIGURAR RUTAS
 // ============================================
 app.MapControllerRoute(
     name: "default",

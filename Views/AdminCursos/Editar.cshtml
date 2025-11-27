@@ -1,0 +1,318 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.EditarCursoViewModel
+
+@{
+    ViewData["Title"] = "Editar Curso";
+    var esEnCurso = Model.EstadoActual == Campus_Virtul_GRLL.Models.Enums.EstadoCurso.EnCurso;
+    var esFinalizado = Model.EstadoActual == Campus_Virtul_GRLL.Models.Enums.EstadoCurso.Finalizado;
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-10 offset-lg-1">
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="bi bi-pencil-square"></i> Editar Curso</h2>
+                    <p class="text-muted">Código: <strong>@Model.Codigo</strong></p>
+                </div>
+                <a asp-action="Detalle" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver a Detalle
+                </a>
+            </div>
+
+            <!-- Alertas según estado -->
+            @if (esEnCurso)
+            {
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Curso en ejecución:</strong> No se pueden cambiar las fechas de un curso que está en curso.
+                </div>
+            }
+            @if (esFinalizado)
+            {
+                <div class="alert alert-info" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>Curso finalizado:</strong> Solo se pueden editar la descripción y objetivos.
+                </div>
+            }
+
+            <!-- Mensajes de validación -->
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <h5><i class="bi bi-exclamation-triangle"></i> Errores de Validación</h5>
+                    <ul class="mb-0">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- Formulario con Tabs -->
+            <div class="card shadow">
+                <div class="card-body">
+                    <form asp-action="Editar" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="EstadoActual" />
+
+                        <!-- Tabs Navigation -->
+                        <ul class="nav nav-tabs mb-4" id="editarCursoTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="info-basica-tab" data-bs-toggle="tab"
+                                        data-bs-target="#info-basica" type="button" role="tab">
+                                    <i class="bi bi-info-circle"></i> 1. Información Básica
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="descripcion-tab" data-bs-toggle="tab"
+                                        data-bs-target="#descripcion" type="button" role="tab">
+                                    <i class="bi bi-card-text"></i> 2. Descripción
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="detalles-tab" data-bs-toggle="tab"
+                                        data-bs-target="#detalles" type="button" role="tab">
+                                    <i class="bi bi-calendar-check"></i> 3. Detalles y Fechas
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="imagen-tab" data-bs-toggle="tab"
+                                        data-bs-target="#imagen" type="button" role="tab">
+                                    <i class="bi bi-image"></i> 4. Imagen y Estado
+                                </button>
+                            </li>
+                        </ul>
+
+                        <!-- Tabs Content -->
+                        <div class="tab-content" id="editarCursoTabsContent">
+
+                            <!-- TAB 1: INFORMACIÓN BÁSICA -->
+                            <div class="tab-pane fade show active" id="info-basica" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label asp-for="Codigo" class="form-label"></label>
+                                        <input asp-for="Codigo" class="form-control" readonly />
+                                        <small class="form-text text-muted">El código no se puede modificar</small>
+                                    </div>
+
+                                    <div class="col-md-8">
+                                        <label asp-for="Titulo" class="form-label"></label>
+                                        <input asp-for="Titulo" class="form-control" required
+                                               disabled="@esFinalizado" />
+                                        <span asp-validation-for="Titulo" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="Categoria" class="form-label"></label>
+                                        <select asp-for="Categoria" class="form-select" required
+                                                disabled="@esFinalizado">
+                                            <option value="">Seleccione una categoría...</option>
+                                            @foreach (var cat in Model.CategoriasDisponibles)
+                                            {
+                                                <option value="@cat">@cat</option>
+                                            }
+                                        </select>
+                                        <span asp-validation-for="Categoria" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label asp-for="Nivel" class="form-label"></label>
+                                        <select asp-for="Nivel" class="form-select" required
+                                                disabled="@esFinalizado">
+                                            <option value="Basico">Básico</option>
+                                            <option value="Intermedio">Intermedio</option>
+                                            <option value="Avanzado">Avanzado</option>
+                                        </select>
+                                        <span asp-validation-for="Nivel" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label asp-for="Modalidad" class="form-label"></label>
+                                        <select asp-for="Modalidad" class="form-select" required
+                                                disabled="@esFinalizado">
+                                            <option value="Presencial">🏢 Presencial</option>
+                                            <option value="Virtual">💻 Virtual</option>
+                                            <option value="Hibrido">🔄 Híbrido</option>
+                                        </select>
+                                        <span asp-validation-for="Modalidad" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TAB 2: DESCRIPCIÓN -->
+                            <div class="tab-pane fade" id="descripcion" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label asp-for="Descripcion" class="form-label"></label>
+                                        <textarea asp-for="Descripcion" class="form-control" rows="6" required
+                                                  maxlength="2000"></textarea>
+                                        <small class="form-text text-muted">
+                                            <span id="descripcionChars">@(Model.Descripcion?.Length ?? 0)</span>/2000 caracteres
+                                        </small>
+                                        <span asp-validation-for="Descripcion" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label asp-for="Objetivos" class="form-label"></label>
+                                        <textarea asp-for="Objetivos" class="form-control" rows="4"
+                                                  maxlength="1000"></textarea>
+                                        <small class="form-text text-muted">
+                                            <span id="objetivosChars">@(Model.Objetivos?.Length ?? 0)</span>/1000 caracteres
+                                        </small>
+                                        <span asp-validation-for="Objetivos" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TAB 3: DETALLES Y FECHAS -->
+                            <div class="tab-pane fade" id="detalles" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label asp-for="Duracion" class="form-label"></label>
+                                        <div class="input-group">
+                                            <input asp-for="Duracion" type="number" class="form-control" required
+                                                   min="1" max="1000" disabled="@esFinalizado" />
+                                            <span class="input-group-text">horas</span>
+                                        </div>
+                                        <span asp-validation-for="Duracion" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="CapacidadMaxima" class="form-label"></label>
+                                        <div class="input-group">
+                                            <input asp-for="CapacidadMaxima" type="number" class="form-control" required
+                                                   min="1" max="500" disabled="@esFinalizado" />
+                                            <span class="input-group-text">personas</span>
+                                        </div>
+                                        <span asp-validation-for="CapacidadMaxima" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="FechaInicio" class="form-label"></label>
+                                        <input asp-for="FechaInicio" type="date" class="form-control"
+                                               disabled="@(esEnCurso || esFinalizado)" />
+                                        @if (esEnCurso || esFinalizado)
+                                        {
+                                            <small class="form-text text-muted">No se puede modificar en cursos en ejecución o finalizados</small>
+                                        }
+                                        <span asp-validation-for="FechaInicio" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="FechaFin" class="form-label"></label>
+                                        <input asp-for="FechaFin" type="date" class="form-control"
+                                               disabled="@(esEnCurso || esFinalizado)" />
+                                        @if (esEnCurso || esFinalizado)
+                                        {
+                                            <small class="form-text text-muted">No se puede modificar en cursos en ejecución o finalizados</small>
+                                        }
+                                        <span asp-validation-for="FechaFin" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TAB 4: IMAGEN Y ESTADO -->
+                            <div class="tab-pane fade" id="imagen" role="tabpanel">
+                                <div class="row g-3">
+                                    <div class="col-md-8">
+                                        <label asp-for="ImagenUrl" class="form-label"></label>
+                                        <input asp-for="ImagenUrl" type="url" class="form-control" id="imagenUrlInput" />
+                                        <small class="form-text text-muted">URL de la imagen del curso (opcional)</small>
+                                        <span asp-validation-for="ImagenUrl" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label">Vista Previa</label>
+                                        <img id="imagenPreview"
+                                             src="@(string.IsNullOrEmpty(Model.ImagenUrl) ? "https://placehold.co/200x120?text=Sin+Imagen" : Model.ImagenUrl)"
+                                             class="img-fluid rounded" alt="Preview" style="max-height: 120px;" />
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="Estado" class="form-label"></label>
+                                        <select asp-for="Estado" class="form-select" required
+                                                disabled="@esFinalizado">
+                                            <option value="Borrador">Borrador</option>
+                                            <option value="Publicado">Publicado</option>
+                                            <option value="EnCurso">En Curso</option>
+                                            <option value="Finalizado">Finalizado</option>
+                                            <option value="Cancelado">Cancelado</option>
+                                        </select>
+                                        <span asp-validation-for="Estado" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="mt-4 d-flex justify-content-between">
+                            <a asp-action="Detalle" asp-route-id="@Model.Id" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary" disabled="@esFinalizado">
+                                <i class="bi bi-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        // Contador de caracteres para descripción
+        const descripcionTextarea = document.getElementById('Descripcion');
+        if (descripcionTextarea) {
+            descripcionTextarea.addEventListener('input', function () {
+                document.getElementById('descripcionChars').textContent = this.value.length;
+            });
+        }
+
+        // Contador de caracteres para objetivos
+        const objetivosTextarea = document.getElementById('Objetivos');
+        if (objetivosTextarea) {
+            objetivosTextarea.addEventListener('input', function () {
+                document.getElementById('objetivosChars').textContent = this.value.length;
+            });
+        }
+
+        // Preview de imagen
+        document.getElementById('imagenUrlInput')?.addEventListener('blur', function () {
+            const url = this.value;
+            if (url) {
+                document.getElementById('imagenPreview').src = url;
+            } else {
+                document.getElementById('imagenPreview').src = 'https://placehold.co/200x120?text=Sin+Imagen';
+            }
+        });
+
+        // Validación de fechas
+        const fechaInicioInput = document.getElementById('FechaInicio');
+        const fechaFinInput = document.getElementById('FechaFin');
+
+        if (fechaInicioInput && fechaFinInput) {
+            fechaInicioInput.addEventListener('change', validateFechas);
+            fechaFinInput.addEventListener('change', validateFechas);
+        }
+
+        function validateFechas() {
+            const fechaInicio = fechaInicioInput.value;
+            const fechaFin = fechaFinInput.value;
+
+            if (fechaInicio && fechaFin) {
+                if (new Date(fechaFin) <= new Date(fechaInicio)) {
+                    alert('La fecha de fin debe ser posterior a la fecha de inicio');
+                    fechaFinInput.value = '';
+                }
+            }
+        }
+    </script>
+}

@@ -1,0 +1,155 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.AsignarProfesorViewModel
+
+@{
+    ViewData["Title"] = "Asignar Profesor al Curso";
+    var tieneProfesor = Model.ProfesorActualId.HasValue;
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="bi bi-person-plus"></i> @(tieneProfesor ? "Cambiar" : "Asignar") Profesor</h2>
+                    <p class="text-muted mb-0">Curso: <strong>@Model.CodigoCurso - @Model.TituloCurso</strong></p>
+                </div>
+                <a asp-action="Detalle" asp-route-id="@Model.CursoId" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            <!-- Información del Profesor Actual -->
+            @if (tieneProfesor)
+            {
+                <div class="alert alert-info" role="alert">
+                    <h5 class="alert-heading"><i class="bi bi-info-circle"></i> Profesor Actual</h5>
+                    <p class="mb-0">
+                        <strong>@Model.NombreProfesorActual</strong>
+                        @if (Model.FechaAsignacionActual.HasValue)
+                        {
+                            <span class="text-muted">- Asignado desde: @Model.FechaAsignacionActual.Value.ToString("dd/MM/yyyy")</span>
+                        }
+                    </p>
+                </div>
+            }
+
+            <!-- Formulario de Asignación -->
+            <div class="card shadow">
+                <div class="card-body">
+                    <form asp-action="AsignarProfesor" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="CursoId" />
+
+                        <div class="mb-4">
+                            <label asp-for="NuevoProfesorId" class="form-label">
+                                <i class="bi bi-person-badge"></i> Seleccionar Profesor
+                            </label>
+                            <select asp-for="NuevoProfesorId" class="form-select" required>
+                                <option value="">-- Seleccione un profesor --</option>
+                                @if (tieneProfesor)
+                                {
+                                    <option value="0">Sin asignar (remover profesor)</option>
+                                }
+                                @foreach (var profesor in Model.ProfesoresDisponibles.OrderBy(p => p.NombreCompleto))
+                                {
+                                    var cargaInfo = $"{profesor.CursosAsignados} cursos ({profesor.HorasCargaTrabajo}h)";
+                                    var esProfesorActual = Model.ProfesorActualId == profesor.IdUsuario;
+                                    var advertenciaCarga = profesor.HorasCargaTrabajo > 120 ? " ⚠️ Carga alta" : "";
+
+                                    <option value="@profesor.IdUsuario"
+                                            selected="@esProfesorActual"
+                                            data-cursos="@profesor.CursosAsignados"
+                                            data-horas="@profesor.HorasCargaTrabajo">
+                                        @profesor.NombreCompleto (@profesor.Area) - @cargaInfo@advertenciaCarga
+                                    </option>
+                                }
+                            </select>
+                            <small class="form-text text-muted">
+                                Se muestra el área del profesor y su carga actual de trabajo
+                            </small>
+                            <span asp-validation-for="NuevoProfesorId" class="text-danger"></span>
+                        </div>
+
+                        <!-- Información del Profesor Seleccionado -->
+                        <div id="profesorInfo" class="alert alert-light d-none mb-4">
+                            <h6>Información del Profesor:</h6>
+                            <p id="profesorDetalle" class="mb-0"></p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Comentario" class="form-label">
+                                <i class="bi bi-chat-left-text"></i> Comentario (Opcional)
+                            </label>
+                            <textarea asp-for="Comentario" class="form-control" rows="3"
+                                      placeholder="Motivo de la asignación o cambio..."></textarea>
+                            <span asp-validation-for="Comentario" class="text-danger"></span>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Detalle" asp-route-id="@Model.CursoId" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> @(tieneProfesor ? "Cambiar Profesor" : "Asignar Profesor")
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Información Adicional -->
+            <div class="card mt-4 bg-light">
+                <div class="card-body">
+                    <h6><i class="bi bi-info-circle"></i> Información</h6>
+                    <ul class="mb-0 small">
+                        <li>Solo se muestran profesores activos</li>
+                        <li>La carga de trabajo se calcula en base a cursos Publicados y En Curso</li>
+                        <li>Se recomienda no asignar a profesores con más de 120 horas de carga</li>
+                        <li>El profesor recibirá notificación de la asignación (función futura)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        // Mostrar información del profesor seleccionado
+        document.getElementById('NuevoProfesorId')?.addEventListener('change', function() {
+            const profesorInfo = document.getElementById('profesorInfo');
+            const profesorDetalle = document.getElementById('profesorDetalle');
+            const selectedOption = this.options[this.selectedIndex];
+
+            if (this.value && this.value !== "0") {
+                const cursos = selectedOption.dataset.cursos;
+                const horas = selectedOption.dataset.horas;
+                const nombre = selectedOption.text.split('(')[0].trim();
+
+                profesorDetalle.innerHTML = `
+                    <strong>${nombre}</strong><br />
+                    Cursos asignados actualmente: ${cursos}<br />
+                    Carga de trabajo total: ${horas} horas
+                `;
+
+                profesorInfo.classList.remove('d-none');
+
+                // Advertencia si tiene mucha carga
+                if (parseInt(horas) > 120) {
+                    profesorInfo.classList.remove('alert-light');
+                    profesorInfo.classList.add('alert-warning');
+                    profesorDetalle.innerHTML += `<br /><strong>⚠️ Advertencia:</strong> Este profesor tiene una carga alta de trabajo`;
+                } else {
+                    profesorInfo.classList.remove('alert-warning');
+                    profesorInfo.classList.add('alert-light');
+                }
+            } else {
+                profesorInfo.classList.add('d-none');
+            }
+        });
+    </script>
+}

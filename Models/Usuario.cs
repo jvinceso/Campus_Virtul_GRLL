@@ -24,6 +24,13 @@
 
         public bool Estado { get; set; }
 
+        // Campos para Soft Delete
+        public bool EsEliminado { get; set; } = false;
+        public DateTime? FechaEliminacion { get; set; }
+        public int? EliminadoPor { get; set; }
+
+        // Navegación
         public Rol? Rol { get; set; }
+        public Usuario? UsuarioEliminador { get; set; }
     }
 }

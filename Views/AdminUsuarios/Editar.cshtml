@@ -1,0 +1,273 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.EditarUsuarioViewModel
+
+@{
+    ViewData["Title"] = "Editar Usuario";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="bi bi-pencil-square"></i> Editar Usuario
+                </h2>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver al listado
+                </a>
+            </div>
+
+            <!-- Advertencia si es usuario actual -->
+            @if (Model.EsUsuarioActual)
+            {
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Atención:</strong> Está editando su propio perfil. No podrá desactivarse ni quitarse el rol de Administrador.
+                </div>
+            }
+
+            <!-- Mensajes de validación -->
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <!-- Formulario -->
+            <div class="card shadow">
+                <div class="card-body">
+                    <form asp-action="Editar" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="IdUsuario" />
+                        <input type="hidden" asp-for="EsUsuarioActual" />
+                        <input type="hidden" asp-for="RolActual" />
+
+                        <!-- Sección: Información Personal -->
+                        <h5 class="card-title mb-3 pb-2 border-bottom">
+                            <i class="bi bi-person-vcard"></i> Información Personal
+                        </h5>
+
+                        <div class="row mb-3">
+                            <!-- Nombres -->
+                            <div class="col-md-6">
+                                <label asp-for="Nombres" class="form-label">
+                                    Nombres <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Nombres" class="form-control" />
+                                <span asp-validation-for="Nombres" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Apellidos -->
+                            <div class="col-md-6">
+                                <label asp-for="Apellidos" class="form-label">
+                                    Apellidos <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Apellidos" class="form-control" />
+                                <span asp-validation-for="Apellidos" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <!-- DNI (readonly) -->
+                            <div class="col-md-6">
+                                <label asp-for="DNI" class="form-label">DNI</label>
+                                <input asp-for="DNI" class="form-control" readonly disabled />
+                                <small class="form-text text-muted">
+                                    <i class="bi bi-lock"></i> El DNI no se puede modificar
+                                </small>
+                            </div>
+
+                            <!-- Teléfono -->
+                            <div class="col-md-6">
+                                <label asp-for="Telefono" class="form-label">Teléfono</label>
+                                <input asp-for="Telefono" class="form-control" />
+                                <span asp-validation-for="Telefono" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <!-- Sección: Información de Contacto -->
+                        <h5 class="card-title mb-3 pb-2 border-bottom mt-4">
+                            <i class="bi bi-envelope"></i> Información de Contacto
+                        </h5>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">
+                                Correo Electrónico <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Sección: Información Laboral -->
+                        <h5 class="card-title mb-3 pb-2 border-bottom mt-4">
+                            <i class="bi bi-building"></i> Información Laboral
+                        </h5>
+
+                        <div class="row mb-3">
+                            <!-- Área -->
+                            <div class="col-md-6">
+                                <label asp-for="Area" class="form-label">
+                                    Área <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="Area" class="form-select">
+                                    <option value="">-- Seleccione un área --</option>
+                                    @foreach (var area in Model.AreasDisponibles)
+                                    {
+                                        <option value="@area" selected="@(Model.Area == area)">@area</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Area" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Rol -->
+                            <div class="col-md-6">
+                                <label asp-for="IdRol" class="form-label">
+                                    Rol <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="IdRol" class="form-select" id="selectRol">
+                                    <option value="">-- Seleccione un rol --</option>
+                                    @foreach (var rol in Model.RolesDisponibles)
+                                    {
+                                        <option value="@rol.IdRol" selected="@(Model.IdRol == rol.IdRol)">
+                                            @rol.NombreRol
+                                        </option>
+                                    }
+                                </select>
+                                <span asp-validation-for="IdRol" class="text-danger small"></span>
+                                @if (Model.EsUsuarioActual && Model.RolActual == "Administrador")
+                                {
+                                    <small class="form-text text-muted">
+                                        <i class="bi bi-shield-lock"></i> No puede quitarse el rol de Administrador
+                                    </small>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Estado -->
+                        <div class="mb-3">
+                            <label asp-for="Estado" class="form-label">
+                                Estado <span class="text-danger">*</span>
+                            </label>
+                            <select asp-for="Estado" class="form-select" id="selectEstado">
+                                <option value="true" selected="@Model.Estado">Activo</option>
+                                <option value="false" selected="@(!Model.Estado)">Inactivo</option>
+                            </select>
+                            <span asp-validation-for="Estado" class="text-danger small"></span>
+                            @if (Model.EsUsuarioActual)
+                            {
+                                <small class="form-text text-muted">
+                                    <i class="bi bi-shield-lock"></i> No puede desactivarse a sí mismo
+                                </small>
+                            }
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <a asp-action="CambiarPassword" asp-route-id="@Model.IdUsuario" class="btn btn-warning">
+                                <i class="bi bi-key"></i> Cambiar Contraseña
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Card de ayuda -->
+            <div class="card mt-3 border-info">
+                <div class="card-body">
+                    <h6 class="card-title text-info">
+                        <i class="bi bi-info-circle"></i> Información
+                    </h6>
+                    <ul class="mb-0 small">
+                        <li>El DNI no puede ser modificado una vez creado el usuario</li>
+                        <li>Para cambiar la contraseña, use el botón "Cambiar Contraseña"</li>
+                        @if (Model.EsUsuarioActual)
+                        {
+                            <li class="text-warning">
+                                <strong>Por seguridad, no puede desactivarse ni quitarse permisos de administrador</strong>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function() {
+            const esUsuarioActual = @Model.EsUsuarioActual.ToString().ToLower();
+            const rolActual = '@Model.RolActual';
+
+            // ============================================
+            // Protección: No permitir desactivarse
+            // ============================================
+            if (esUsuarioActual) {
+                $('#selectEstado').on('change', function() {
+                    if ($(this).val() === 'false') {
+                        alert('No puede desactivarse a sí mismo.');
+                        $(this).val('true');
+                    }
+                });
+            }
+
+            // ============================================
+            // Protección: Admin no puede quitarse rol
+            // ============================================
+            if (esUsuarioActual && rolActual === 'Administrador') {
+                const adminRolId = $('#selectRol option:contains("Administrador")').val();
+
+                $('#selectRol').on('change', function() {
+                    if ($(this).val() !== adminRolId) {
+                        alert('No puede quitarse el rol de Administrador a sí mismo.');
+                        $(this).val(adminRolId);
+                    }
+                });
+            }
+
+            // ============================================
+            // Validación de Teléfono (solo números)
+            // ============================================
+            $('#Telefono').on('keypress', function(e) {
+                const charCode = e.which ? e.which : e.keyCode;
+                if (charCode < 48 || charCode > 57) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            // ============================================
+            // Validación de Email en tiempo real
+            // ============================================
+            $('#Email').on('blur', function() {
+                const email = $(this).val();
+                const emailRegex = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/;
+
+                if (email && !emailRegex.test(email)) {
+                    $(this).addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-invalid');
+                }
+            });
+
+            // ============================================
+            // Confirmación antes de enviar
+            // ============================================
+            $('form').on('submit', function(e) {
+                const nombres = $('#Nombres').val();
+                const apellidos = $('#Apellidos').val();
+
+                if (!confirm(`¿Está seguro de guardar los cambios para ${nombres} ${apellidos}?`)) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+    </script>
+}
