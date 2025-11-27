@@ -1,6 +1,8 @@
 using Campus_Virtul_GRLL.Data;
+using Campus_Virtul_GRLL.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,14 +66,29 @@ builder.Services.AddAuthorization(options =>
 });
 
 // ============================================
-// 4. AGREGAR CONTROLADORES Y VISTAS
+// 4. CONFIGURAR SUBIDA DE ARCHIVOS
+// ============================================
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 52428800; // 50 MB
+    options.ValueLengthLimit = int.MaxValue;
+    options.MultipartHeadersLengthLimit = int.MaxValue;
+});
+
+// ============================================
+// 5. REGISTRAR SERVICIOS
+// ============================================
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+
+// ============================================
+// 6. AGREGAR CONTROLADORES Y VISTAS
 // ============================================
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
 // ============================================
-// 5. INICIALIZAR BASE DE DATOS CON DATOS SEED
+// 7. INICIALIZAR BASE DE DATOS CON DATOS SEED
 // ============================================
 using (var scope = app.Services.CreateScope())
 {
@@ -89,7 +106,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 // ============================================
-// 6. CONFIGURAR PIPELINE HTTP
+// 8. CONFIGURAR PIPELINE HTTP
 // ============================================
 if (!app.Environment.IsDevelopment())
 {
@@ -106,7 +123,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // ============================================
-// 7. CONFIGURAR RUTAS
+// 9. CONFIGURAR RUTAS
 // ============================================
 app.MapControllerRoute(
     name: "default",

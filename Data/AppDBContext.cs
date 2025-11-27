@@ -17,6 +17,8 @@ namespace Campus_Virtul_GRLL.Data
         public DbSet<SolicitudRevisión> SolicitudsRevision { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Curso> Cursos { get; set; }
+        public DbSet<ModuloCurso> ModulosCurso { get; set; }
+        public DbSet<Material> Materiales { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -342,6 +344,113 @@ namespace Campus_Virtul_GRLL.Data
                 .OnDelete(DeleteBehavior.Restrict);
             });
 
+            // ============================================
+            // Configuración de ModuloCurso
+            // ============================================
+            modelBuilder.Entity<ModuloCurso>(tabla =>
+            {
+                tabla.HasKey(columna => columna.IdModuloCurso);
+
+                tabla.Property(columna => columna.Titulo)
+                    .HasMaxLength(200)
+                    .IsRequired();
+
+                tabla.Property(columna => columna.Descripcion)
+                    .HasMaxLength(500);
+
+                tabla.Property(columna => columna.Orden)
+                    .IsRequired();
+
+                tabla.Property(columna => columna.FechaCreacion)
+                    .IsRequired();
+
+                tabla.Property(columna => columna.EsEliminado)
+                    .IsRequired()
+                    .HasDefaultValue(false);
+
+                // Relación con Curso
+                tabla.HasOne(columna => columna.Curso)
+                    .WithMany()
+                    .HasForeignKey(columna => columna.IdCurso)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ============================================
+            // Configuración de Material
+            // ============================================
+            modelBuilder.Entity<Material>(tabla =>
+            {
+                tabla.HasKey(columna => columna.IdMaterial);
+
+                tabla.Property(columna => columna.Titulo)
+                    .HasMaxLength(200)
+                    .IsRequired();
+
+                tabla.Property(columna => columna.Descripcion)
+                    .HasMaxLength(1000);
+
+                tabla.Property(columna => columna.Tipo)
+                    .HasConversion<string>()
+                    .IsRequired();
+
+                tabla.Property(columna => columna.NombreArchivo)
+                    .HasMaxLength(255);
+
+                tabla.Property(columna => columna.RutaArchivo)
+                    .HasMaxLength(500);
+
+                tabla.Property(columna => columna.Extension)
+                    .HasMaxLength(20);
+
+                tabla.Property(columna => columna.UrlExterna)
+                    .HasMaxLength(1000);
+
+                tabla.Property(columna => columna.Orden)
+                    .IsRequired()
+                    .HasDefaultValue(0);
+
+                tabla.Property(columna => columna.EsVisible)
+                    .IsRequired()
+                    .HasDefaultValue(true);
+
+                tabla.Property(columna => columna.FechaSubida)
+                    .IsRequired();
+
+                tabla.Property(columna => columna.NumeroDescargas)
+                    .IsRequired()
+                    .HasDefaultValue(0);
+
+                tabla.Property(columna => columna.EsEliminado)
+                    .IsRequired()
+                    .HasDefaultValue(false);
+
+                // Relación con Curso
+                tabla.HasOne(columna => columna.Curso)
+                    .WithMany()
+                    .HasForeignKey(columna => columna.IdCurso)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Relación con ModuloCurso (opcional)
+                tabla.HasOne(columna => columna.ModuloCurso)
+                    .WithMany(m => m.Materiales)
+                    .HasForeignKey(columna => columna.IdModuloCurso)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired(false);
+
+                // Relación con Usuario (SubidoPor)
+                tabla.HasOne(columna => columna.SubidoPor)
+                    .WithMany()
+                    .HasForeignKey(columna => columna.SubidoPorId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Relación con Usuario (EliminadoPor)
+                tabla.HasOne(columna => columna.EliminadoPor)
+                    .WithMany()
+                    .HasForeignKey(columna => columna.EliminadoPorId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired(false);
+            });
+
             modelBuilder.Entity<Solicitud>().ToTable("Solicitud");
             modelBuilder.Entity<SolicitudRevisión>().ToTable("SolicitudRevisión");
             modelBuilder.Entity<Usuario>().ToTable("Usuario");
@@ -349,6 +458,8 @@ namespace Campus_Virtul_GRLL.Data
             modelBuilder.Entity<Permisos>().ToTable("Permisos");
             modelBuilder.Entity<Modulo>().ToTable("Modulo");
             modelBuilder.Entity<Curso>().ToTable("Curso");
+            modelBuilder.Entity<ModuloCurso>().ToTable("ModuloCurso");
+            modelBuilder.Entity<Material>().ToTable("Material");
         }
-    }        
+    }
 }

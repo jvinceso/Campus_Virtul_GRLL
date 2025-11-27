@@ -86,7 +86,7 @@
 
         <!-- Botones de acción -->
         <div class="mt-auto">
-            <div class="btn-group w-100" role="group">
+            <div class="btn-group w-100 mb-2" role="group">
                 <a asp-action="Detalle" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm">
                     <i class="bi bi-eye"></i> Ver
                 </a>
@@ -94,6 +94,9 @@
                     <i class="bi bi-pencil"></i> Editar
                 </a>
             </div>
+            <a asp-controller="ProfesorMateriales" asp-action="Index" asp-route-idCurso="@Model.Id" class="btn btn-info btn-sm w-100">
+                <i class="bi bi-folder-fill"></i> Gestionar Materiales
+            </a>
         </div>
     </div>
 </div>
