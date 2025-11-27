@@ -1,0 +1,290 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.GestionarPermisosViewModel
+
+@{
+    ViewData["Title"] = $"Gestionar Permisos: {Model.NombreRol}";
+}
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="bi bi-key"></i> Gestionar Permisos
+                </h2>
+                <a asp-action="ListadoRoles" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver al listado
+                </a>
+            </div>
+
+            <!-- Card con el rol -->
+            <div class="card shadow mb-4">
+                <div class="card-body text-center py-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="bi bi-shield-fill-check display-1 text-white"></i>
+                    <h3 class="mt-3 mb-0 text-white">@Model.NombreRol</h3>
+                    <p class="text-white-50 mt-2 mb-0">Configura los permisos que tendrá este rol en cada módulo del sistema</p>
+                </div>
+            </div>
+
+            <!-- Información -->
+            <div class="alert alert-info" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <strong>Instrucciones:</strong>
+                Marca los permisos que deseas otorgar a este rol para cada módulo.
+                Si no marcas ningún permiso en un módulo, el rol no tendrá acceso a ese módulo.
+            </div>
+
+            <!-- Formulario -->
+            <form asp-action="GestionarPermisos" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="IdRol" />
+                <input type="hidden" asp-for="NombreRol" />
+
+                @if (Model.Modulos.Any())
+                {
+                    <div class="row">
+                        @for (int i = 0; i < Model.Modulos.Count; i++)
+                        {
+                            var modulo = Model.Modulos[i];
+                            <div class="col-md-6 mb-4">
+                                <div class="card shadow h-100">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0">
+                                            <i class="bi bi-folder"></i> @modulo.NombreModulo
+                                        </h5>
+                                        @if (!string.IsNullOrEmpty(modulo.Descripcion))
+                                        {
+                                            <small class="text-white-50">@modulo.Descripcion</small>
+                                        }
+                                    </div>
+                                    <div class="card-body">
+                                        <input type="hidden" name="Modulos[@i].IdModulo" value="@modulo.IdModulo" />
+                                        <input type="hidden" name="Modulos[@i].NombreModulo" value="@modulo.NombreModulo" />
+                                        <input type="hidden" name="Modulos[@i].Descripcion" value="@modulo.Descripcion" />
+                                        <input type="hidden" name="Modulos[@i].IdPermiso" value="@modulo.IdPermiso" />
+
+                                        <div class="row g-3">
+                                            <!-- Crear -->
+                                            <div class="col-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input"
+                                                           type="checkbox"
+                                                           name="Modulos[@i].Crear"
+                                                           value="true"
+                                                           id="modulo_@(i)_crear"
+                                                           @(modulo.Crear ? "checked" : "") />
+                                                    <label class="form-check-label" for="modulo_@(i)_crear">
+                                                        <i class="bi bi-plus-circle text-success"></i> <strong>Crear</strong>
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <!-- Editar -->
+                                            <div class="col-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input"
+                                                           type="checkbox"
+                                                           name="Modulos[@i].Editar"
+                                                           value="true"
+                                                           id="modulo_@(i)_editar"
+                                                           @(modulo.Editar ? "checked" : "") />
+                                                    <label class="form-check-label" for="modulo_@(i)_editar">
+                                                        <i class="bi bi-pencil-square text-warning"></i> <strong>Editar</strong>
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <!-- Revisar -->
+                                            <div class="col-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input"
+                                                           type="checkbox"
+                                                           name="Modulos[@i].Revisar"
+                                                           value="true"
+                                                           id="modulo_@(i)_revisar"
+                                                           @(modulo.Revisar ? "checked" : "") />
+                                                    <label class="form-check-label" for="modulo_@(i)_revisar">
+                                                        <i class="bi bi-search text-secondary"></i> <strong>Revisar</strong>
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <!-- Aprobar -->
+                                            <div class="col-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input"
+                                                           type="checkbox"
+                                                           name="Modulos[@i].Aprobar"
+                                                           value="true"
+                                                           id="modulo_@(i)_aprobar"
+                                                           @(modulo.Aprobar ? "checked" : "") />
+                                                    <label class="form-check-label" for="modulo_@(i)_aprobar">
+                                                        <i class="bi bi-check-circle text-success"></i> <strong>Aprobar</strong>
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <!-- Visualizar -->
+                                            <div class="col-12">
+                                                <div class="form-check">
+                                                    <input class="form-check-input"
+                                                           type="checkbox"
+                                                           name="Modulos[@i].Visualizar"
+                                                           value="true"
+                                                           id="modulo_@(i)_visualizar"
+                                                           @(modulo.Visualizar ? "checked" : "") />
+                                                    <label class="form-check-label" for="modulo_@(i)_visualizar">
+                                                        <i class="bi bi-eye text-info"></i> <strong>Visualizar</strong>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Botones rápidos -->
+                                        <div class="mt-3 pt-3 border-top">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-success me-2"
+                                                    onclick="marcarTodos(@i)">
+                                                <i class="bi bi-check-all"></i> Todos
+                                            </button>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-secondary"
+                                                    onclick="desmarcarTodos(@i)">
+                                                <i class="bi bi-x"></i> Ninguno
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-warning text-center" role="alert">
+                        <i class="bi bi-exclamation-triangle fs-2"></i>
+                        <p class="mb-0 mt-2">No hay módulos disponibles en el sistema.</p>
+                    </div>
+                }
+
+                <!-- Leyenda -->
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-question-circle"></i> Descripción de Permisos
+                        </h5>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="bi bi-plus-circle text-success"></i>
+                                        <strong>Crear:</strong> Puede crear nuevos registros
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-pencil-square text-warning"></i>
+                                        <strong>Editar:</strong> Puede modificar registros existentes
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-eye text-info"></i>
+                                        <strong>Visualizar:</strong> Puede ver y consultar información
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="bi bi-search text-secondary"></i>
+                                        <strong>Revisar:</strong> Puede revisar y validar información
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check-circle text-success"></i>
+                                        <strong>Aprobar:</strong> Puede aprobar o rechazar solicitudes
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center mb-4">
+                    <a asp-action="ListadoRoles" class="btn btn-secondary btn-lg">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-check-circle"></i> Guardar Permisos
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Marcar todos los permisos de un módulo
+        function marcarTodos(index) {
+            $(`#modulo_${index}_crear`).prop('checked', true);
+            $(`#modulo_${index}_editar`).prop('checked', true);
+            $(`#modulo_${index}_revisar`).prop('checked', true);
+            $(`#modulo_${index}_aprobar`).prop('checked', true);
+            $(`#modulo_${index}_visualizar`).prop('checked', true);
+        }
+
+        // Desmarcar todos los permisos de un módulo
+        function desmarcarTodos(index) {
+            $(`#modulo_${index}_crear`).prop('checked', false);
+            $(`#modulo_${index}_editar`).prop('checked', false);
+            $(`#modulo_${index}_revisar`).prop('checked', false);
+            $(`#modulo_${index}_aprobar`).prop('checked', false);
+            $(`#modulo_${index}_visualizar`).prop('checked', false);
+        }
+
+        // Confirmación antes de enviar
+        $(document).ready(function() {
+            $('form').on('submit', function(e) {
+                const rolNombre = '@Model.NombreRol';
+                const totalModulos = @Model.Modulos.Count;
+
+                // Contar módulos con permisos
+                let modulosConPermisos = 0;
+                for (let i = 0; i < totalModulos; i++) {
+                    const tieneAlgunPermiso =
+                        $(`#modulo_${i}_crear`).is(':checked') ||
+                        $(`#modulo_${i}_editar`).is(':checked') ||
+                        $(`#modulo_${i}_revisar`).is(':checked') ||
+                        $(`#modulo_${i}_aprobar`).is(':checked') ||
+                        $(`#modulo_${i}_visualizar`).is(':checked');
+
+                    if (tieneAlgunPermiso) modulosConPermisos++;
+                }
+
+                const mensaje = `¿Guardar los permisos configurados para el rol "${rolNombre}"?\n\n` +
+                    `Módulos con permisos: ${modulosConPermisos} de ${totalModulos}`;
+
+                if (!confirm(mensaje)) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .form-check-input:checked {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+    </style>
+}

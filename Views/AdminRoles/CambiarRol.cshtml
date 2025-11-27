@@ -1,0 +1,238 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.CambiarRolViewModel
+
+@{
+    ViewData["Title"] = "Cambiar Rol de Usuario";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="bi bi-arrow-left-right"></i> Cambiar Rol de Usuario
+                </h2>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver al listado
+                </a>
+            </div>
+
+            <!-- Advertencia si es el usuario actual con rol Admin -->
+            @if (Model.EsUsuarioActual && Model.RolActual == "Administrador")
+            {
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Advertencia:</strong> Estás a punto de cambiar tu propio rol de Administrador.
+                    Perderás privilegios administrativos inmediatamente después del cambio.
+                </div>
+            }
+
+            <!-- Card con información del usuario -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person"></i> Información del Usuario
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong class="text-muted">Nombre Completo:</strong>
+                            <p class="mb-0">@Model.NombreCompleto</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong class="text-muted">DNI:</strong>
+                            <p class="mb-0">
+                                <span class="badge bg-secondary">@Model.DNI</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong class="text-muted">Email:</strong>
+                            <p class="mb-0">
+                                <i class="bi bi-envelope"></i> @Model.Email
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong class="text-muted">Área:</strong>
+                            <p class="mb-0">@Model.Area</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <strong class="text-muted">Rol Actual:</strong>
+                            <p class="mb-0">
+                                @if (Model.RolActual == "Administrador")
+                                {
+                                    <span class="badge bg-danger fs-6">
+                                        <i class="bi bi-shield-fill-check"></i> @Model.RolActual
+                                    </span>
+                                }
+                                else if (Model.RolActual == "Profesor")
+                                {
+                                    <span class="badge bg-info fs-6">
+                                        <i class="bi bi-person-badge"></i> @Model.RolActual
+                                    </span>
+                                }
+                                else if (Model.RolActual == "Colaborador")
+                                {
+                                    <span class="badge bg-warning fs-6">
+                                        <i class="bi bi-person-check"></i> @Model.RolActual
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary fs-6">
+                                        <i class="bi bi-person"></i> @Model.RolActual
+                                    </span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mensajes de validación -->
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            @if (!string.IsNullOrEmpty(ViewBag.Error))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    @ViewBag.Error
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <!-- Formulario de cambio de rol -->
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pencil-square"></i> Cambiar Rol
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="CambiarRol" method="post" id="formCambiarRol">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="IdUsuario" />
+                        <input type="hidden" asp-for="RolActual" />
+                        <input type="hidden" asp-for="NombreCompleto" />
+                        <input type="hidden" asp-for="DNI" />
+                        <input type="hidden" asp-for="Email" />
+                        <input type="hidden" asp-for="Area" />
+                        <input type="hidden" asp-for="EsUsuarioActual" />
+
+                        <!-- Selección del nuevo rol -->
+                        <div class="mb-4">
+                            <label asp-for="IdRolNuevo" class="form-label">
+                                <strong>Nuevo Rol</strong> <span class="text-danger">*</span>
+                            </label>
+                            <select asp-for="IdRolNuevo"
+                                    class="form-select"
+                                    asp-items="@(new SelectList(Model.RolesDisponibles, "IdRol", "NombreRol"))"
+                                    required>
+                                <option value="">-- Seleccione un rol --</option>
+                            </select>
+                            <span asp-validation-for="IdRolNuevo" class="text-danger small"></span>
+                            <small class="form-text text-muted">
+                                Seleccione el nuevo rol que se asignará al usuario.
+                            </small>
+                        </div>
+
+                        <!-- Motivo del cambio (opcional) -->
+                        <div class="mb-4">
+                            <label asp-for="Motivo" class="form-label">
+                                Motivo del Cambio <span class="text-muted">(Opcional)</span>
+                            </label>
+                            <textarea asp-for="Motivo"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Ej: Promoción, Cambio de área, Ajuste de permisos, etc."
+                                      maxlength="500"></textarea>
+                            <span asp-validation-for="Motivo" class="text-danger small"></span>
+                            <small class="form-text text-muted">
+                                Máximo 500 caracteres. Este motivo quedará registrado en el historial.
+                            </small>
+                        </div>
+
+                        <!-- Información adicional -->
+                        <div class="alert alert-info" role="alert">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Nota:</strong>
+                            El cambio de rol afectará inmediatamente los permisos del usuario.
+                            Esta acción quedará registrada en el sistema.
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-warning" id="btnCambiarRol">
+                                <i class="bi bi-arrow-left-right"></i> Cambiar Rol
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function() {
+            // Confirmación antes de enviar
+            $('#formCambiarRol').on('submit', function(e) {
+                const nombreCompleto = '@Model.NombreCompleto';
+                const rolActual = '@Model.RolActual';
+                const esUsuarioActual = @Model.EsUsuarioActual.ToString().ToLower();
+                const nuevoRolId = $('#IdRolNuevo').val();
+                const nuevoRolTexto = $('#IdRolNuevo option:selected').text();
+
+                // Validar que se haya seleccionado un rol
+                if (!nuevoRolId) {
+                    alert('Por favor, seleccione un nuevo rol.');
+                    e.preventDefault();
+                    return false;
+                }
+
+                // Mensaje de confirmación especial si es el propio usuario
+                let mensaje = '';
+                if (esUsuarioActual) {
+                    mensaje = `⚠️ ADVERTENCIA: Estás a punto de cambiar tu propio rol.\n\n`;
+                    mensaje += `Usuario: ${nombreCompleto}\n`;
+                    mensaje += `Rol Actual: ${rolActual}\n`;
+                    mensaje += `Nuevo Rol: ${nuevoRolTexto}\n\n`;
+                    mensaje += `Perderás tus privilegios actuales inmediatamente.\n\n`;
+                    mensaje += `¿Estás seguro de continuar?`;
+                } else {
+                    mensaje = `¿Está seguro de cambiar el rol del usuario?\n\n`;
+                    mensaje += `Usuario: ${nombreCompleto}\n`;
+                    mensaje += `Rol Actual: ${rolActual}\n`;
+                    mensaje += `Nuevo Rol: ${nuevoRolTexto}\n\n`;
+                    mensaje += `Esta acción será registrada en el sistema.`;
+                }
+
+                if (!confirm(mensaje)) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            // Resaltar el select cuando cambia
+            $('#IdRolNuevo').on('change', function() {
+                if ($(this).val()) {
+                    $(this).removeClass('is-invalid').addClass('is-valid');
+                } else {
+                    $(this).removeClass('is-valid').addClass('is-invalid');
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,249 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.ListadoRolesViewModel
+
+@{
+    ViewData["Title"] = "Gestión de Roles";
+}
+
+<div class="container-fluid py-4">
+    <!-- Encabezado -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>
+                    <i class="bi bi-shield-lock"></i> Gestión de Roles
+                </h2>
+                <div>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-people"></i> Ver Usuarios
+                    </a>
+                    <a asp-action="CrearRol" class="btn btn-success">
+                        <i class="bi bi-plus-circle"></i> Crear Nuevo Rol
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensajes -->
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i>
+            @TempData["Mensaje"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i>
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Tarjetas de estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <i class="bi bi-shield-check fs-1 text-primary"></i>
+                    <h3 class="mt-2 mb-0">@Model.TotalRoles</h3>
+                    <p class="text-muted mb-0">Total de Roles</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle-fill fs-1 text-success"></i>
+                    <h3 class="mt-2 mb-0">@Model.RolesActivos</h3>
+                    <p class="text-muted mb-0">Roles Activos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card border-secondary">
+                <div class="card-body text-center">
+                    <i class="bi bi-x-circle-fill fs-1 text-secondary"></i>
+                    <h3 class="mt-2 mb-0">@Model.RolesInactivos</h3>
+                    <p class="text-muted mb-0">Roles Inactivos</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de roles -->
+    <div class="card shadow">
+        <div class="card-body">
+            @if (Model.Roles.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Rol</th>
+                                <th>Descripción</th>
+                                <th>Estado</th>
+                                <th>Usuarios</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var rol in Model.Roles)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            @if (rol.NombreRol == "Administrador")
+                                            {
+                                                <i class="bi bi-shield-fill-check fs-4 text-danger me-2"></i>
+                                            }
+                                            else if (rol.NombreRol == "Profesor")
+                                            {
+                                                <i class="bi bi-person-badge fs-4 text-info me-2"></i>
+                                            }
+                                            else if (rol.NombreRol == "Colaborador")
+                                            {
+                                                <i class="bi bi-person-check fs-4 text-warning me-2"></i>
+                                            }
+                                            else if (rol.NombreRol == "Practicante")
+                                            {
+                                                <i class="bi bi-person fs-4 text-secondary me-2"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="bi bi-shield fs-4 text-primary me-2"></i>
+                                            }
+                                            <strong>@rol.NombreRol</strong>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">@rol.Descripcion</small>
+                                    </td>
+                                    <td>
+                                        @if (rol.Estado)
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Activo
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">
+                                                <i class="bi bi-x-circle"></i> Inactivo
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (rol.UsuariosConEsteRol > 0)
+                                        {
+                                            <span class="badge bg-info">
+                                                @rol.UsuariosConEsteRol usuario(s)
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Sin usuarios</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <!-- Ver permisos -->
+                                            <a asp-action="VerPermisos"
+                                               asp-route-rolNombre="@rol.NombreRol"
+                                               class="btn btn-sm btn-outline-info"
+                                               title="Ver permisos">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+
+                                            <!-- Gestionar permisos -->
+                                            <a asp-action="GestionarPermisos"
+                                               asp-route-id="@rol.IdRol"
+                                               class="btn btn-sm btn-outline-primary"
+                                               title="Gestionar permisos">
+                                                <i class="bi bi-key"></i>
+                                            </a>
+
+                                            <!-- Editar -->
+                                            <a asp-action="EditarRol"
+                                               asp-route-id="@rol.IdRol"
+                                               class="btn btn-sm btn-outline-warning"
+                                               title="Editar rol">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+
+                                            <!-- Eliminar -->
+                                            @if (rol.PuedeEliminar)
+                                            {
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-danger"
+                                                        onclick="confirmarEliminar(@rol.IdRol, '@rol.NombreRol')"
+                                                        title="Eliminar rol">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-secondary"
+                                                        disabled
+                                                        title="No se puede eliminar (tiene usuarios asignados)">
+                                                    <i class="bi bi-lock"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info text-center" role="alert">
+                    <i class="bi bi-info-circle fs-2"></i>
+                    <p class="mb-0 mt-2">No hay roles registrados en el sistema.</p>
+                    <a asp-action="CrearRol" class="btn btn-primary mt-3">
+                        <i class="bi bi-plus-circle"></i> Crear Primer Rol
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Formulario oculto para eliminar -->
+<form id="formEliminar" asp-action="EliminarRol" method="post" style="display:none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" id="idRolEliminar" name="id" />
+</form>
+
+@section Scripts {
+    <script>
+        function confirmarEliminar(idRol, nombreRol) {
+            if (confirm(`¿Está seguro de eliminar el rol "${nombreRol}"?\n\nEsta acción no se puede deshacer y eliminará también todos los permisos asociados.`)) {
+                document.getElementById('idRolEliminar').value = idRol;
+                document.getElementById('formEliminar').submit();
+            }
+        }
+    </script>
+}
+
+@section Styles {
+    <style>
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+
+        .card {
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+    </style>
+}

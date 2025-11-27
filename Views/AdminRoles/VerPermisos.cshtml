@@ -1,0 +1,233 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.VerPermisosViewModel
+
+@{
+    ViewData["Title"] = $"Permisos del Rol: {Model.NombreRol}";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="bi bi-shield-check"></i> Permisos del Rol
+                </h2>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver al listado
+                </a>
+            </div>
+
+            <!-- Card con el nombre del rol -->
+            <div class="card shadow mb-4">
+                <div class="card-body text-center py-4">
+                    @if (Model.NombreRol == "Administrador")
+                    {
+                        <i class="bi bi-shield-fill-check display-1 text-danger"></i>
+                        <h3 class="mt-3 mb-0 text-danger">@Model.NombreRol</h3>
+                    }
+                    else if (Model.NombreRol == "Profesor")
+                    {
+                        <i class="bi bi-person-badge display-1 text-info"></i>
+                        <h3 class="mt-3 mb-0 text-info">@Model.NombreRol</h3>
+                    }
+                    else if (Model.NombreRol == "Colaborador")
+                    {
+                        <i class="bi bi-person-check display-1 text-warning"></i>
+                        <h3 class="mt-3 mb-0 text-warning">@Model.NombreRol</h3>
+                    }
+                    else
+                    {
+                        <i class="bi bi-person display-1 text-secondary"></i>
+                        <h3 class="mt-3 mb-0 text-secondary">@Model.NombreRol</h3>
+                    }
+                    <p class="text-muted mt-2">
+                        Este rol tiene @Model.TotalPermisos permisos activos en @Model.ModulosConPermiso módulos
+                    </p>
+                </div>
+            </div>
+
+            <!-- Permisos por módulo -->
+            @if (Model.PermisosPorModulo.Any())
+            {
+                <div class="row">
+                    @foreach (var modulo in Model.PermisosPorModulo)
+                    {
+                        <div class="col-md-6 mb-4">
+                            <div class="card shadow h-100">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-folder"></i> @modulo.Key
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <!-- Crear -->
+                                        <div class="col-6">
+                                            <div class="form-check">
+                                                @if (modulo.Value.Crear)
+                                                {
+                                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                                    <strong class="text-success">Crear</strong>
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-x-circle text-muted"></i>
+                                                    <span class="text-muted">Crear</span>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <!-- Editar -->
+                                        <div class="col-6">
+                                            <div class="form-check">
+                                                @if (modulo.Value.Editar)
+                                                {
+                                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                                    <strong class="text-success">Editar</strong>
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-x-circle text-muted"></i>
+                                                    <span class="text-muted">Editar</span>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <!-- Revisar -->
+                                        <div class="col-6">
+                                            <div class="form-check">
+                                                @if (modulo.Value.Revisar)
+                                                {
+                                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                                    <strong class="text-success">Revisar</strong>
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-x-circle text-muted"></i>
+                                                    <span class="text-muted">Revisar</span>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <!-- Aprobar -->
+                                        <div class="col-6">
+                                            <div class="form-check">
+                                                @if (modulo.Value.Aprobar)
+                                                {
+                                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                                    <strong class="text-success">Aprobar</strong>
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-x-circle text-muted"></i>
+                                                    <span class="text-muted">Aprobar</span>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <!-- Visualizar -->
+                                        <div class="col-12">
+                                            <div class="form-check">
+                                                @if (modulo.Value.Visualizar)
+                                                {
+                                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                                    <strong class="text-success">Visualizar</strong>
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-x-circle text-muted"></i>
+                                                    <span class="text-muted">Visualizar</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info text-center" role="alert">
+                    <i class="bi bi-info-circle fs-2"></i>
+                    <p class="mb-0 mt-2">Este rol no tiene permisos asignados en ningún módulo.</p>
+                </div>
+            }
+
+            <!-- Leyenda -->
+            <div class="card shadow mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-question-circle"></i> Descripción de Permisos
+                    </h5>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-plus-circle text-primary"></i>
+                                    <strong>Crear:</strong> Puede crear nuevos registros
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-pencil-square text-warning"></i>
+                                    <strong>Editar:</strong> Puede modificar registros existentes
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-eye text-info"></i>
+                                    <strong>Visualizar:</strong> Puede ver y consultar información
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="bi bi-search text-secondary"></i>
+                                    <strong>Revisar:</strong> Puede revisar y validar información
+                                </li>
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle text-success"></i>
+                                    <strong>Aprobar:</strong> Puede aprobar o rechazar solicitudes
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón para volver -->
+            <div class="text-center mt-4">
+                <a asp-action="Index" class="btn btn-primary btn-lg">
+                    <i class="bi bi-arrow-left"></i> Volver a Gestión de Roles
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .form-check {
+            padding-left: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .bi-check-circle-fill {
+            font-size: 1.2rem;
+        }
+
+        .bi-x-circle {
+            font-size: 1.2rem;
+        }
+    </style>
+}

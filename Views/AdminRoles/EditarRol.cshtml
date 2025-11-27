@@ -1,0 +1,214 @@
+@model Campus_Virtul_GRLL.Models.ViewModels.EditarRolViewModel
+
+@{
+    ViewData["Title"] = "Editar Rol";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Encabezado -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="bi bi-pencil-square"></i> Editar Rol
+                </h2>
+                <a asp-action="ListadoRoles" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver al listado
+                </a>
+            </div>
+
+            <!-- Advertencia si hay usuarios con este rol -->
+            @if (Model.UsuariosConEsteRol > 0)
+            {
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Atención:</strong>
+                    Este rol está asignado a <strong>@Model.UsuariosConEsteRol usuario(s)</strong>.
+                    @if (Model.Estado)
+                    {
+                        <span>No podrás desactivarlo mientras tenga usuarios asignados.</span>
+                    }
+                </div>
+            }
+
+            <!-- Mensajes de validación -->
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <!-- Formulario -->
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="bi bi-shield-check"></i> Datos del Rol
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="EditarRol" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="IdRol" />
+                        <input type="hidden" asp-for="UsuariosConEsteRol" />
+
+                        <!-- Nombre del Rol -->
+                        <div class="mb-4">
+                            <label asp-for="NombreRol" class="form-label">
+                                <strong>Nombre del Rol</strong> <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-shield"></i></span>
+                                <input asp-for="NombreRol"
+                                       class="form-control"
+                                       placeholder="Ej: Supervisor, Auditor, etc."
+                                       maxlength="50"
+                                       required />
+                            </div>
+                            <span asp-validation-for="NombreRol" class="text-danger small"></span>
+                            <small class="form-text text-muted">
+                                Máximo 50 caracteres. El nombre debe ser único.
+                            </small>
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="mb-4">
+                            <label asp-for="Descripcion" class="form-label">
+                                <strong>Descripción</strong> <span class="text-danger">*</span>
+                            </label>
+                            <textarea asp-for="Descripcion"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Describe las responsabilidades y alcance de este rol..."
+                                      maxlength="200"
+                                      required></textarea>
+                            <span asp-validation-for="Descripcion" class="text-danger small"></span>
+                            <small class="form-text text-muted">
+                                Máximo 200 caracteres. Describe brevemente el propósito del rol.
+                            </small>
+                        </div>
+
+                        <!-- Estado -->
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                @if (Model.UsuariosConEsteRol > 0 && Model.Estado)
+                                {
+                                    <input asp-for="Estado"
+                                           class="form-check-input"
+                                           type="checkbox"
+                                           role="switch"
+                                           id="switchEstado"
+                                           disabled />
+                                }
+                                else
+                                {
+                                    <input asp-for="Estado"
+                                           class="form-check-input"
+                                           type="checkbox"
+                                           role="switch"
+                                           id="switchEstado" />
+                                }
+                                <label class="form-check-label" for="switchEstado">
+                                    <strong>Rol Activo</strong>
+                                </label>
+                            </div>
+                            <span asp-validation-for="Estado" class="text-danger small"></span>
+                            <small class="form-text text-muted">
+                                @if (Model.UsuariosConEsteRol > 0 && Model.Estado)
+                                {
+                                    <span class="text-warning">
+                                        No se puede desactivar porque tiene usuarios asignados.
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span>Si está activo, el rol estará disponible para asignar a usuarios.</span>
+                                }
+                            </small>
+                        </div>
+
+                        <!-- Información adicional -->
+                        <div class="card bg-light mb-4">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="bi bi-info-circle text-primary"></i> Información del Rol
+                                </h6>
+                                <ul class="mb-0">
+                                    <li>
+                                        <strong>ID del Rol:</strong> @Model.IdRol
+                                    </li>
+                                    <li>
+                                        <strong>Usuarios con este rol:</strong>
+                                        @if (Model.UsuariosConEsteRol > 0)
+                                        {
+                                            <span class="badge bg-info">@Model.UsuariosConEsteRol usuario(s)</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Sin usuarios asignados</span>
+                                        }
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="ListadoRoles" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-check-circle"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Enlaces adicionales -->
+            <div class="card mt-4 border-primary">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-gear"></i> Acciones Adicionales
+                    </h5>
+                    <div class="d-grid gap-2">
+                        <a asp-action="GestionarPermisos" asp-route-id="@Model.IdRol" class="btn btn-outline-primary">
+                            <i class="bi bi-key"></i> Gestionar Permisos de este Rol
+                        </a>
+                        <a asp-action="VerPermisos" asp-route-rolNombre="@Model.NombreRol" class="btn btn-outline-info">
+                            <i class="bi bi-eye"></i> Ver Permisos Actuales
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function() {
+            // Actualizar estilo de inputs al modificar
+            $('#NombreRol, #Descripcion').on('input', function() {
+                if ($(this).val().length > 0) {
+                    $(this).addClass('is-valid').removeClass('is-invalid');
+                }
+            });
+
+            // Si el switch está deshabilitado, crear un hidden input para enviar el valor
+            @if (Model.UsuariosConEsteRol > 0 && Model.Estado)
+            {
+                <text>
+                $('form').on('submit', function() {
+                    if ($('#switchEstado').prop('disabled')) {
+                        $('<input>').attr({
+                            type: 'hidden',
+                            name: 'Estado',
+                            value: 'true'
+                        }).appendTo('form');
+                    }
+                });
+                </text>
+            }
+        });
+    </script>
+}
